@@ -35,7 +35,7 @@ def process_image(image_path):
     h, w, _ = img.shape
     # Crop maior (20% da altura e 40% da largura)
     crop = img[3598:3892,1030:1388]
-    cv2.imwrite('crop_debug.png', crop)  # Salva crop para debug
+    #cv2.imwrite('crop_debug.png', crop)  # Salva crop para debug
     # Pré-processamento: apenas aumento de contraste
     gray = cv2.cvtColor(crop, cv2.COLOR_BGR2GRAY)
     alpha = 2.0  # contraste
@@ -44,7 +44,8 @@ def process_image(image_path):
     # Binarização após contraste
     #_, thresh = cv2.threshold(contrasted, 120, 255, cv2.THRESH_BINARY)
     temp_crop_path = 'temp_crop.png'
-    cv2.imwrite(temp_crop_path, contrasted)
+    #cv2.imwrite(temp_crop_path, contrasted)
+    cv2.imwrite(temp_crop_path, crop)
     pil_img = Image.open(temp_crop_path)
     whitelist = 'OPSTEB0123456789-'
     custom_config = f'--psm 6 -c tessedit_char_whitelist={whitelist}'
