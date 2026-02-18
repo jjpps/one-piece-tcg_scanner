@@ -2,3 +2,4 @@
 *.png
 *.jpeg
 db.sqlite
+*.xlsx
