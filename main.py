@@ -21,7 +21,8 @@ def init_db():
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         filename TEXT NOT NULL,
         code TEXT NOT NULL,
-        processed_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        processed_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        croped_image TEXT default NULL
     )''')
     conn.commit()
     conn.close()
