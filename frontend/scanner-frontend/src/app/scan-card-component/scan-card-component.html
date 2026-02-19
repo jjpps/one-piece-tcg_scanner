@@ -1,19 +1,32 @@
 <main class="min-vh-100 d-flex align-items-center justify-content-center">
-    <div class="container text-center">
-        <div class="row justify-content-center">
-            <div class="col-12 col-md-6">
-                <div class="h-100 p-5 bg-body-tertiary border rounded-3">
-                    <h2>Scan Cards</h2>
-                    <form>
-                        <div class="mb-3">
-                            <label for="formFileMultiple" class="form-label">Input card images</label>
-                            <input class="form-control form-control-lg" type="file" id="formFileMultiple" multiple>
-                        </div>
-                        <button type="submit" class="btn btn-outline-primary">Upload</button>
-                    </form>
+  <div class="container text-center">
+    <div class="row justify-content-center">
+      <div class="col-12 col-md-6">
+        <div class="h-100 p-5 bg-body-tertiary border rounded-3">
+          <h2>Scan Cards</h2>
+          <form (ngSubmit)="onSubmit()">
+            <div class="mb-3">
+              <label for="formFileMultiple" class="form-label"> Input card images </label>
 
-                </div>
+              <input
+                class="form-control form-control-lg"
+                type="file"
+                id="formFileMultiple"
+                multiple
+                (change)="onFileSelected($event)"
+              />
             </div>
+
+            <button
+              type="submit"
+              class="btn btn-outline-primary"
+              [disabled]="!selectedFiles?.length || loading"
+            >
+              {{ loading ? 'Uploading...' : 'Upload' }}
+            </button>
+          </form>
         </div>
+      </div>
     </div>
+  </div>
 </main>
