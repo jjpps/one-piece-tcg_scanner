@@ -8,7 +8,7 @@ def create_app():
     app = Flask(__name__)
     CORS(app)
     # Inicializa banco
-    init_db()
+    init_db()    
 
     # Registra rotas
     register_routes(app)

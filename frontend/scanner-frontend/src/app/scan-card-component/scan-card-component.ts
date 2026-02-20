@@ -2,10 +2,11 @@ import { HttpClient } from '@angular/common/http';
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ChangeDetectorRef } from '@angular/core';
+import { ProcessingBarComponent } from '../processing-bar-component/processing-bar-component';
 @Component({
   selector: 'app-scan-card-component',
   standalone: true,
-  imports: [FormsModule],
+  imports: [FormsModule,ProcessingBarComponent],
   templateUrl: './scan-card-component.html',
   styleUrls: ['./scan-card-component.css'],
 })
@@ -51,6 +52,7 @@ export class ScanCardComponent {
       error: (error) => {
         console.error('Erro no upload:', error);
         this.loading = false;
+        alert('Ocorreu um erro ao enviar os arquivos. Por favor, tente novamente.');
       },
     });
   }

@@ -1,5 +1,6 @@
 from flask import Blueprint, request, jsonify
 import os
+import processor
 
 upload_bp = Blueprint('upload', __name__)
 
@@ -35,6 +36,8 @@ def upload_images():
         filepath = os.path.join(IMAGES_FOLDER, file.filename)
         file.save(filepath)
         uploaded.append(file.filename)
+    
+    processor.start_processing(IMAGES_FOLDER)
 
     return jsonify({
         "uploaded": uploaded,
