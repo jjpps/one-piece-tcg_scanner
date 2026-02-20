@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-
+import { ChangeDetectorRef } from '@angular/core';
 @Component({
   selector: 'app-scan-card-component',
   standalone: true,
@@ -15,7 +15,10 @@ export class ScanCardComponent {
 
   private apiUrl = 'http://localhost:5000/api/upload';
 
-  constructor(private http: HttpClient) {}
+  constructor(
+    private http: HttpClient,
+    private cdr: ChangeDetectorRef,
+  ) {}
 
   onFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
@@ -38,17 +41,17 @@ export class ScanCardComponent {
     this.loading = true;
     console.log('Enviando arquivos para:', this.apiUrl);
 
-    this.http.post(this.apiUrl, formData)
-      .subscribe({
-        next: (response) => {
-          console.log('Upload sucesso:', response);
-          this.loading = false;
-          this.selectedFiles = [];
-        },
-        error: (error) => {
-          console.error('Erro no upload:', error);
-          this.loading = false;
-        }
-      });
+    this.http.post(this.apiUrl, formData).subscribe({
+      next: (response) => {
+        console.log('Upload sucesso:', response);
+        this.loading = false;
+        this.selectedFiles = [];
+        this.cdr.detectChanges(); 
+      },
+      error: (error) => {
+        console.error('Erro no upload:', error);
+        this.loading = false;
+      },
+    });
   }
 }

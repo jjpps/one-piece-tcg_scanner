@@ -9,6 +9,7 @@ os.makedirs(IMAGES_FOLDER, exist_ok=True)
 
 @upload_bp.route('/upload', methods=['POST'])
 def upload_images():
+    print("Recebendo solicitação de upload de imagens")
     if 'images' not in request.files:
         return jsonify({"error": "Nenhuma imagem enviada"}), 400
 
