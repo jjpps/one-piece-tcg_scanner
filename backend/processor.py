@@ -1,6 +1,7 @@
 import threading
 import os
 import image_processor
+from services.tcg_api_client import get_card_by_code
 processing_status = {
     "total": 0,
     "current": 0,
@@ -48,7 +49,9 @@ def start_processing(folder_path):
             code, ocr_text = image_processor.process_image(file_path)
 
             if code:
-                print(f"Resultado: {code} (OCR: {ocr_text})")
+                print("buscando na api")
+                print(get_card_by_code(code))
+
             else:
                 print(f"Falha ao processar: {file_path} (OCR: {ocr_text})")
 
