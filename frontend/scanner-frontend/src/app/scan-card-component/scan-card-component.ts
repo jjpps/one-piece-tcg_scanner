@@ -3,6 +3,7 @@ import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ChangeDetectorRef } from '@angular/core';
 import { ProcessingBarComponent } from '../processing-bar-component/processing-bar-component';
+import { ProcessingService } from '../processing-bar-component/processing.service';
 @Component({
   selector: 'app-scan-card-component',
   standalone: true,
@@ -19,6 +20,7 @@ export class ScanCardComponent {
   constructor(
     private http: HttpClient,
     private cdr: ChangeDetectorRef,
+    private processingService: ProcessingService
   ) {}
 
   onFileSelected(event: Event): void {
@@ -47,7 +49,8 @@ export class ScanCardComponent {
         console.log('Upload sucesso:', response);
         this.loading = false;
         this.selectedFiles = [];
-        this.cdr.detectChanges(); 
+        this.cdr.detectChanges();
+        this.processingService.startPolling();
       },
       error: (error) => {
         console.error('Erro no upload:', error);

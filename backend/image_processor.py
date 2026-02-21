@@ -10,6 +10,7 @@ if sys.platform.startswith('win'):
 
 
 def process_image(image_path):
+    print(f"Processando: {image_path}")
     # Abre imagem
     img = cv2.imread(image_path)
     h, w, _ = img.shape

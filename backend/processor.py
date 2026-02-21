@@ -1,5 +1,6 @@
 import threading
 import os
+import image_processor
 processing_status = {
     "total": 0,
     "current": 0,
@@ -19,7 +20,6 @@ def start_processing(folder_path):
 
     def worker():
 
-        # Buscar todas as imagens válidas na pasta
         allowed_extensions = ('.png', '.jpg', '.jpeg')
 
         files = [
@@ -27,6 +27,14 @@ def start_processing(folder_path):
             for f in os.listdir(folder_path)
             if f.lower().endswith(allowed_extensions)
         ]
+
+        if not files:
+            with status_lock:
+                processing_status["total"] = 0
+                processing_status["current"] = 0
+                processing_status["processing"] = False
+            print("Nenhuma imagem encontrada para processar.")
+            return
 
         with status_lock:
             processing_status["total"] = len(files)
@@ -36,12 +44,13 @@ def start_processing(folder_path):
         for index, file_path in enumerate(files, start=1):
 
             print(f"Processando: {file_path}")
-            
-            # ============================
-            # Aqui entra a chamada do OCR
-            # ex:
-            # code, raw_text = process_image(file_path)
-            # ============================
+
+            code, ocr_text = image_processor.process_image(file_path)
+
+            if code:
+                print(f"Resultado: {code} (OCR: {ocr_text})")
+            else:
+                print(f"Falha ao processar: {file_path} (OCR: {ocr_text})")
 
             with status_lock:
                 processing_status["current"] = index
