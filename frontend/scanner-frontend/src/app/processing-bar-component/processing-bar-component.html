@@ -1,0 +1,23 @@
+<div *ngIf="processing" class="mt-4">
+
+  <div class="mb-2 text-center">
+    Processando {{ current }} de {{ total }}
+  </div>
+
+  <div
+    class="progress"
+    role="progressbar"
+    aria-label="Processamento de imagens"
+    [attr.aria-valuenow]="progress"
+    aria-valuemin="0"
+    aria-valuemax="100"
+  >
+    <div
+      class="progress-bar progress-bar-striped progress-bar-animated"
+      [style.width]="progress + '%'"
+    >
+      {{ progress }}%
+    </div>
+  </div>
+
+</div>
