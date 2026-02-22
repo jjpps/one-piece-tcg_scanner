@@ -15,8 +15,7 @@ def init_db():
             processed_at DATETIME DEFAULT CURRENT_TIMESTAMP,
             image_url TEXT default NULL,
             card_name TEXT default NULL,
-            quantity INTEGER default 1,
-            processed BOOLEAN DEFAULT 0
+            quantity INTEGER default 1
         )
     ''')
 

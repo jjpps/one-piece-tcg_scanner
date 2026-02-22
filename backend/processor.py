@@ -2,6 +2,7 @@ import threading
 import os
 import image_processor
 from services.tcg_api_client import get_card_by_code
+from repositories.cards_repository import save_to_db, card_exists, add_card_quantity
 processing_status = {
     "total": 0,
     "current": 0,
@@ -49,11 +50,17 @@ def start_processing(folder_path):
             code, ocr_text = image_processor.process_image(file_path)
 
             if code:
-                print("buscando na api")
-                print(get_card_by_code(code))
-
+                if card_exists(code):
+                    add_card_quantity(code)
+                    print(f"Cartão já existe. Quantidade atualizada: {code}")
+                else:
+                    card = get_card_by_code(code)
+                    if card:
+                        save_to_db(file_path,card.code,card.images.large,card.name)                
+                os.remove(file_path)
             else:
                 print(f"Falha ao processar: {file_path} (OCR: {ocr_text})")
+                
 
             with status_lock:
                 processing_status["current"] = index

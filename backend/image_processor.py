@@ -3,6 +3,7 @@ import pytesseract
 from PIL import Image
 import re
 import sys
+import os
 
 # Configura caminho do executável Tesseract para Windows
 if sys.platform.startswith('win'):
@@ -47,5 +48,5 @@ def process_image(image_path):
 
     match = re.search(r'(OP|ST|EB)\d{2}-\d{3}', ocr_text)
     code = match.group(0) if match else None
-
+    os.remove(temp_crop_path)
     return code, ocr_text
