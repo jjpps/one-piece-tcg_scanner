@@ -1,5 +1,5 @@
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
-import { ProcessingService } from './processing.service';
+import { ProcessingService } from '../services/processing.service';
 import { CommonModule } from '@angular/common';
 
 @Component({

@@ -3,7 +3,7 @@ import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ChangeDetectorRef } from '@angular/core';
 import { ProcessingBarComponent } from '../processing-bar-component/processing-bar-component';
-import { ProcessingService } from '../processing-bar-component/processing.service';
+import { ProcessingService } from '../services/processing.service';
 @Component({
   selector: 'app-scan-card-component',
   standalone: true,

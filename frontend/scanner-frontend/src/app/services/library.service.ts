@@ -1,0 +1,15 @@
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { BehaviorSubject, interval, Observable, Subscription } from 'rxjs';
+import { LibraryCard } from '../../interfaces/cards.mode';
+
+@Injectable({
+  providedIn: 'root',
+})
+export class LibraryService {
+  private apiUrl = 'http://localhost:5000/api/library';
+  constructor(private http: HttpClient) {}
+  getLibrary(): Observable<LibraryCard[]> {
+    return this.http.get<LibraryCard[]>(this.apiUrl);
+  }
+}

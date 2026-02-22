@@ -36,3 +36,13 @@ def add_card_quantity(code):
 
     conn.commit()
     conn.close()
+
+def get_all_cards():
+    conn = sqlite3.connect(DB_PATH)
+    c = conn.cursor()
+
+    c.execute('SELECT code,image_url,card_name,quantity FROM cards')
+    cards = c.fetchall()
+
+    conn.close()
+    return cards
