@@ -44,9 +44,6 @@ def start_processing(folder_path):
             processing_status["processing"] = True
 
         for index, file_path in enumerate(files, start=1):
-
-            print(f"Processando: {file_path}")
-
             code, ocr_text = image_processor.process_image(file_path)
 
             if code:

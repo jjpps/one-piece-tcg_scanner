@@ -48,7 +48,14 @@ class Card:
             name=data.get("name"),
             images=CardImages(**data.get("images", {})),
             cost=data.get("cost"),
-            attribute=CardAttribute(**data["attribute"]) if data.get("attribute") else None,
+            attribute = (
+                CardAttribute(
+                    name=data.get("attribute").get("name"),
+                    image=data.get("attribute").get("image")
+                )
+                if data.get("attribute") and data.get("attribute").get("name")
+                else None
+            ),
             power=data.get("power"),
             counter=data.get("counter"),
             color=data.get("color"),
