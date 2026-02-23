@@ -53,7 +53,9 @@ def start_processing(folder_path):
                 else:
                     card = get_card_by_code(code)
                     if card:
-                        save_to_db(file_path,card.code,card.images.large,card.name)                
+                        save_to_db(file_path,card.code,card.images.large,card.name)
+                        print(f"Cartão salvo: {code}")
+
                 os.remove(file_path)
             else:
                 print(f"Falha ao processar: {file_path} (OCR: {ocr_text})")
