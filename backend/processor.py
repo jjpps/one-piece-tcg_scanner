@@ -3,6 +3,7 @@ import os
 import image_processor
 from services.tcg_api_client import get_card_by_code
 from repositories.cards_repository import save_to_db, card_exists, add_card_quantity
+ERROR_IMAGES_FOLDER = 'images_with_errors'
 processing_status = {
     "total": 0,
     "current": 0,
@@ -60,7 +61,7 @@ def start_processing(folder_path):
                 os.remove(file_path)
             else:
                 print(f"Falha ao processar: {file_path} (OCR: {ocr_text})")
-                os.rename(file_path, os.path.join('images_with_errors', os.path.basename(file_path)))
+                os.rename(file_path, os.path.join(ERROR_IMAGES_FOLDER, os.path.basename(file_path)))
                 with status_lock:
                     processing_status["anyErrors"] = True
                 

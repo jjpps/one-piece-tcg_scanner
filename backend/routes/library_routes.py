@@ -1,5 +1,9 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, send_from_directory, url_for
 from repositories.cards_repository import get_all_cards
+import os
+
+ERROR_IMAGES_FOLDER = 'images_with_errors'
+
 
 library_bp = Blueprint('library', __name__)
 @library_bp.route('/library', methods=['GET'])
@@ -17,3 +21,29 @@ def get_library():
 
     return jsonify(library)
     
+@library_bp.route('/library/errors', methods=['GET'])
+def get_error_images():
+    if not os.path.exists(ERROR_IMAGES_FOLDER):
+        return jsonify([])
+
+    error_files = [
+        f
+        for f in os.listdir(ERROR_IMAGES_FOLDER)
+        if f.lower().endswith(('.png', '.jpg', '.jpeg'))
+    ]
+    library = [
+        {
+            "code": 'UNKNOWN',
+            "image_url": url_for('library.serve_error_image', filename=card, _external=True),
+            "card_name": 'UNKNOWN',
+            "quantity": 1
+        }
+        for card in error_files
+    ]
+
+    return jsonify(library)
+
+
+@library_bp.route('/library/images_with_errors/<path:filename>', methods=['GET'])
+def serve_error_image(filename):
+    return send_from_directory(ERROR_IMAGES_FOLDER, filename)

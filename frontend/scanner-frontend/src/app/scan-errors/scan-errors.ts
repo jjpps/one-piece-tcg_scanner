@@ -1,28 +1,29 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { LibraryService } from '../services/library.service';
 import { LibraryCard } from '../../interfaces/cards.mode';
 
 @Component({
-  selector: 'app-library-component',
+  selector: 'app-scan-errors',
   imports: [CommonModule],
-  templateUrl: './library-component.html',
-  styleUrl: './library-component.css',
+  standalone:true,
+  templateUrl: './scan-errors.html',
+  styleUrl: './scan-errors.css',
 })
-export class LibraryComponent  implements OnInit  {
+export class ScanErrors  implements OnInit {
   cards: LibraryCard[] = [];
-  loading = true;
-  error: string | null = null;
+    loading = true;
+    error: string | null = null;
+    constructor(private libraryService: LibraryService, private cdr: ChangeDetectorRef) {}
 
-  constructor(private libraryService: LibraryService, private cdr: ChangeDetectorRef,) {}
-
-  ngOnInit(): void {
-    this.loadLibrary();
+    ngOnInit(): void {
+    this.loadLibraryErrors();
   }
-  loadLibrary(): void {
+
+    loadLibraryErrors(): void {
     this.loading = true;
 
-    this.libraryService.getLibrary().subscribe({
+    this.libraryService.getScanErrors().subscribe({
       next: (data) => {
         this.cards = data;
         this.loading = false;

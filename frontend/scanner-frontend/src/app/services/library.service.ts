@@ -12,4 +12,7 @@ export class LibraryService {
   getLibrary(): Observable<LibraryCard[]> {
     return this.http.get<LibraryCard[]>(this.apiUrl);
   }
+  getScanErrors(): Observable<LibraryCard[]> {
+    return this.http.get<LibraryCard[]>(`${this.apiUrl}/errors`);
+  }
 }

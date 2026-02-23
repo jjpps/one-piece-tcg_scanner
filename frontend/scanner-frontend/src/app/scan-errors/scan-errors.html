@@ -1,0 +1,24 @@
+<br />
+<hr />
+
+<div class="container">
+  <!-- Loading -->
+  <div *ngIf="loading" class="text-center mt-4">Carregando...</div>
+
+  <!-- Grid -->
+  <div *ngIf="!loading" class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-5 g-4">
+    <p *ngIf="cards.length === 0" class="text-center w-100">Nenhuma carta com erro.</p>
+    <div class="col" *ngFor="let card of cards">
+      <div class="card h-100 shadow-sm">
+        <img [src]="card.image_url" class="card-img-top" [alt]="card.card_name" />
+
+        <div class="card-body text-center">          
+
+          <p class="card-text mb-1"><strong>Código:</strong></p>
+          <input type="text" class="form-control form-control-sm text-center" [value]="card.code" readonly />
+        
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
