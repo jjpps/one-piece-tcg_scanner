@@ -69,6 +69,6 @@ def process_image(image_path):
     match = re.search(r'(OP|ST|EB)\d{2}-\d{3}', ocr_text)
     code = match.group(0) if match else None
     os.remove(temp_crop_path)
-    os.remove(carta_isolada)
-    os.remove(codigo_crop)
+    os.remove('carta_isolada.png')
+    os.remove('img_codigo.png')
     return code, ocr_text

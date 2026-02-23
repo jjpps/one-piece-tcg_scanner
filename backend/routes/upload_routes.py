@@ -5,7 +5,9 @@ import processor
 upload_bp = Blueprint('upload', __name__)
 
 IMAGES_FOLDER = 'images'
+ERROR_IMAGES_FOLDER = 'images_with_errors'
 os.makedirs(IMAGES_FOLDER, exist_ok=True)
+os.makedirs(ERROR_IMAGES_FOLDER, exist_ok=True)
 
 
 @upload_bp.route('/upload', methods=['POST'])

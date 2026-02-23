@@ -6,7 +6,8 @@ from repositories.cards_repository import save_to_db, card_exists, add_card_quan
 processing_status = {
     "total": 0,
     "current": 0,
-    "processing": False
+    "processing": False,
+    "anyErrors": False
 }
 
 status_lock = threading.Lock()
@@ -59,6 +60,9 @@ def start_processing(folder_path):
                 os.remove(file_path)
             else:
                 print(f"Falha ao processar: {file_path} (OCR: {ocr_text})")
+                os.rename(file_path, os.path.join('images_with_errors', os.path.basename(file_path)))
+                with status_lock:
+                    processing_status["anyErrors"] = True
                 
 
             with status_lock:
