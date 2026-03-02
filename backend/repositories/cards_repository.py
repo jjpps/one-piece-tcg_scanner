@@ -1,12 +1,12 @@
 import sqlite3
 DB_PATH = 'db.sqlite'
-def save_to_db(filename, code,image_url=None, card_name=None, quantity=1):
+def save_to_db(code,image_url=None, card_name=None, quantity=1):
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
 
     c.execute(
-        'INSERT INTO cards (filename, code,image_url,card_name,quantity) VALUES (?, ?, ?, ?, ?)',
-        (filename, code, image_url, card_name, quantity)
+        'INSERT INTO cards (code,image_url,card_name,quantity) VALUES (?, ?, ?, ?, ?)',
+        (code, image_url, card_name, quantity)
     )
 
     conn.commit()

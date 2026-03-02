@@ -3,10 +3,12 @@ import os
 import image_processor
 from services.tcg_api_client import get_card_by_code
 from repositories.cards_repository import save_to_db, card_exists, add_card_quantity
+ERROR_IMAGES_FOLDER = 'images_with_errors'
 processing_status = {
     "total": 0,
     "current": 0,
-    "processing": False
+    "processing": False,
+    "anyErrors": False
 }
 
 status_lock = threading.Lock()
@@ -44,9 +46,6 @@ def start_processing(folder_path):
             processing_status["processing"] = True
 
         for index, file_path in enumerate(files, start=1):
-
-            print(f"Processando: {file_path}")
-
             code, ocr_text = image_processor.process_image(file_path)
 
             if code:
@@ -56,10 +55,15 @@ def start_processing(folder_path):
                 else:
                     card = get_card_by_code(code)
                     if card:
-                        save_to_db(file_path,card.code,card.images.large,card.name)                
+                        save_to_db(file_path,card.code,card.images.large,card.name)
+                        print(f"Cartão salvo: {code}")
+
                 os.remove(file_path)
             else:
                 print(f"Falha ao processar: {file_path} (OCR: {ocr_text})")
+                os.rename(file_path, os.path.join(ERROR_IMAGES_FOLDER, os.path.basename(file_path)))
+                with status_lock:
+                    processing_status["anyErrors"] = True
                 
 
             with status_lock:

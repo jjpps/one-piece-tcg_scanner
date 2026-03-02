@@ -1,7 +1,7 @@
 import requests
 from dtos.card_dto import Card
 BASE_URL = "https://apitcg.com/api/one-piece/cards"
-API_KEY = "f77838e8fb47d3e065f6e4d8330a19fb7bc76d3276545ea8f5c2efa284acf4f4" 
+API_KEY = "" 
 
 session = requests.Session()
 session.headers.update({

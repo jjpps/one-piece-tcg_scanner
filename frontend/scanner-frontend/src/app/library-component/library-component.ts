@@ -10,7 +10,7 @@ import { LibraryCard } from '../../interfaces/cards.mode';
   styleUrl: './library-component.css',
 })
 export class LibraryComponent  implements OnInit  {
-   cards: LibraryCard[] = [];
+  cards: LibraryCard[] = [];
   loading = true;
   error: string | null = null;
 

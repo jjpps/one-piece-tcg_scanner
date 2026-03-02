@@ -12,4 +12,11 @@ export class LibraryService {
   getLibrary(): Observable<LibraryCard[]> {
     return this.http.get<LibraryCard[]>(this.apiUrl);
   }
+  getScanErrors(): Observable<LibraryCard[]> {
+    return this.http.get<LibraryCard[]>(`${this.apiUrl}/errors`);
+  }
+  saveCardManually(fileName:string,code: string): Observable<any> {
+    console.log(`Salvando carta com código ${code}`);
+    return this.http.post(`${this.apiUrl}/errors/${fileName}`, { code:code });
+  }
 }

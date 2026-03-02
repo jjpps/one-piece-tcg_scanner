@@ -10,7 +10,6 @@ def init_db():
     c.execute('''
         CREATE TABLE IF NOT EXISTS cards (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            filename TEXT NOT NULL,
             code TEXT NOT NULL UNIQUE,
             processed_at DATETIME DEFAULT CURRENT_TIMESTAMP,
             image_url TEXT default NULL,

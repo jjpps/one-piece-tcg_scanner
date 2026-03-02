@@ -19,5 +19,8 @@
       {{ progress }}%
     </div>
   </div>
+  <div *ngIf="anyErrors" class="alert alert-danger mt-2">
+    <span>Ocorreu 1 Erro durante o processamento</span>
+  </div>
 
 </div>

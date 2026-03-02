@@ -14,6 +14,7 @@ export class ProcessingBarComponent implements OnInit {
   current = 0;
   processing = false;
   progress = 0;
+  anyErrors = false;
 
   constructor(private processingService: ProcessingService,private cdr: ChangeDetectorRef) {}
 
@@ -23,6 +24,7 @@ export class ProcessingBarComponent implements OnInit {
         this.total = res.total;
         this.current = res.current;
         this.processing = res.processing;
+        this.anyErrors = res.anyErrors;
 
         this.progress = this.total > 0
           ? Math.round((this.current / this.total) * 100)
