@@ -12,9 +12,10 @@ import { LibraryCard } from '../../interfaces/cards.mode';
 })
 export class ScanErrors  implements OnInit {
   cards: LibraryCard[] = [];
-    loading = true;
-    error: string | null = null;
-    constructor(private libraryService: LibraryService, private cdr: ChangeDetectorRef) {}
+  loading = true;
+  error: string | null = null;
+  savingId: string | null = null;
+  constructor(private libraryService: LibraryService, private cdr: ChangeDetectorRef) {}
 
     ngOnInit(): void {
     this.loadLibraryErrors();
@@ -37,6 +38,27 @@ export class ScanErrors  implements OnInit {
         this.cdr.detectChanges();
       }
     });    
+  }
+
+  saveCard(fileName: string,inputValue: string): void {
+    if (!inputValue.trim()) {
+      alert('Por favor, digite o código da carta');
+      return;
+    }
+
+    this.libraryService.saveCardManually(fileName,inputValue).subscribe({
+      next: () => {
+        console.log('Carta salva com sucesso');
+        this.savingId = null;
+        this.loadLibraryErrors();
+      },
+      error: (err) => {
+        console.error('Erro ao salvar carta', err);
+        alert('Erro ao salvar a carta. Tente novamente.');
+        this.savingId = null;
+        this.cdr.detectChanges();
+      }
+    });
   }
 
 }
