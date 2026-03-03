@@ -20,7 +20,7 @@
             <button
               type="submit"
               class="btn btn-outline-primary"
-              [disabled]="!selectedFiles?.length || loading"
+              [disabled]="!selectedFiles.length || loading"
             >
               {{ loading ? 'Uploading...' : 'Upload' }}
             </button>
