@@ -2,9 +2,10 @@ import { HttpClient } from '@angular/common/http';
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ProcessingService } from '../../services/processing.service';
+import { ProcessingBar } from '../processing-bar/processing-bar';
 @Component({
   selector: 'app-scan-cards',
-  imports: [FormsModule],
+  imports: [FormsModule,ProcessingBar],
   templateUrl: './scan-cards.html',
   styleUrl: './scan-cards.css',
 })
@@ -44,8 +45,7 @@ selectedFiles: File[] = [];
       next: (response) => {
         console.log('Upload sucesso:', response);
         this.loading = false;
-        this.selectedFiles = [];
-        
+        this.selectedFiles = [];        
         this.processingService.startPolling();
       },
       error: (error) => {

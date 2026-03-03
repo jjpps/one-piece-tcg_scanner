@@ -1,0 +1,40 @@
+<div *ngIf="status$ | async as status">
+
+  <!-- Só mostra a barra se estiver processando -->
+  <div *ngIf="status.processing" class="mt-4">
+
+    <div class="mb-2 text-center">
+      Processando {{ status.current }} de {{ status.total }}
+    </div>
+
+    <div
+      class="progress"
+      role="progressbar"
+      aria-label="Processamento de imagens"
+      aria-valuemin="0"
+      aria-valuemax="100"
+    >
+      <div
+        class="progress-bar progress-bar-striped progress-bar-animated"
+        [style.width]="
+          (status.total > 0 
+            ? (status.current / status.total) * 100 
+            : 0
+          ) + '%'
+        "
+      >
+        {{
+          status.total > 0
+            ? ((status.current / status.total) * 100 | number:'1.0-0')
+            : 0
+        }}%
+      </div>
+    </div>
+
+    <div *ngIf="status.anyErrors" class="alert alert-danger mt-2">
+      Ocorreu erro durante o processamento
+    </div>
+
+  </div>
+
+</div>
