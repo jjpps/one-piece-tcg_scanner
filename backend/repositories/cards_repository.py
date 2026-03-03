@@ -5,7 +5,7 @@ def save_to_db(code,image_url=None, card_name=None, quantity=1):
     c = conn.cursor()
 
     c.execute(
-        'INSERT INTO cards (code,image_url,card_name,quantity) VALUES (?, ?, ?, ?, ?)',
+        'INSERT INTO cards (code,image_url,card_name,quantity) VALUES (?, ?, ?, ?)',
         (code, image_url, card_name, quantity)
     )
 

@@ -1,0 +1,34 @@
+<br />
+<hr />
+
+<div class="container">
+  <ng-container *ngIf="cardsNotDetected$ | async as cards">
+    <div *ngIf="cards === null" class="text-center mt-4">Carregando biblioteca...</div>
+    <div
+      *ngIf="cards !== null"
+      class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-5 g-4"
+    >
+      <p *ngIf="cards.length === 0" class="text-center w-100">Nenhuma carta na biblioteca.</p>
+      <div class="col" *ngFor="let card of cards">
+        <div class="card h-100 shadow-sm">
+          <img [src]="card.image_url" class="card-img-top" [alt]="card.card_name" />
+
+          <div class="card-body text-center">
+            <input
+              #codeInput
+              type="text"
+              class="form-control form-control-sm text-center mb-2"
+              [value]="card.code"
+            />
+            <button
+              class="btn btn-primary btn-sm w-100"
+              (click)="saveCard(card.id, codeInput.value)"
+            >
+              Salvar Carta
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+</div>
