@@ -59,18 +59,19 @@ def save_error_card(card_id):
         
         if not code:
             return jsonify({'error': 'Code is required'}), 400
-        
+        code = code.strip().upper()
         if code:
             if card_exists(code):
                 add_card_quantity(code)
                 print(f"Cartão já existe. Quantidade atualizada: {code}")
+                os.remove(os.path.join(ERROR_IMAGES_FOLDER, os.path.basename(card_id)))
             else:
                 card = get_card_by_code(code)
                 if card:
-                    save_to_db(card.code,card.images.large,card.name)
+                    save_to_db(card.card_set_id ,card.card_image ,card.card_name)
                     print(f"Cartão salvo: {code}")
-
-            os.remove(os.path.join(ERROR_IMAGES_FOLDER, os.path.basename(card_id)))
+                    os.remove(os.path.join(ERROR_IMAGES_FOLDER, os.path.basename(card_id)))
+                
         else:
             print(f"Falha ao processar: {card_id}")
             os.rename(card_id, os.path.join(ERROR_IMAGES_FOLDER, os.path.basename(card_id)))

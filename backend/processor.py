@@ -53,10 +53,11 @@ def start_processing(folder_path):
                 if card_exists(code):
                     add_card_quantity(code)
                     print(f"Cartão já existe. Quantidade atualizada: {code}")
+                    os.remove(file_path)
                 else:
                     card = get_card_by_code(code)
                     if card:
-                        save_to_db(card.code,card.images.large,card.name)
+                        save_to_db(card.card_set_id ,card.card_image ,card.card_name)
                         print(f"Cartão salvo: {code}")
                         os.remove(file_path)
                     else:
