@@ -15,7 +15,8 @@ def get_library():
             "code": card[0],
             "image_url": card[1],
             "card_name": card[2],
-            "quantity": card[3]
+            "quantity": card[3],
+            "date": card[4]
         }
         for card in cards
     ]

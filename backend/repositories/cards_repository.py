@@ -41,7 +41,7 @@ def get_all_cards():
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
 
-    c.execute('SELECT code,image_url,card_name,quantity FROM cards order by processed_at desc')
+    c.execute('SELECT code,image_url,card_name,quantity,date(processed_at) as processed_at FROM cards order by processed_at desc')
     cards = c.fetchall()
 
     conn.close()
