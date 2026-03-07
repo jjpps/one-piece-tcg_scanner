@@ -47,7 +47,7 @@ def start_processing(folder_path):
             processing_status["processing"] = True
 
         for index, file_path in enumerate(files, start=1):
-            code, ocr_text = image_processor.process_image(file_path)
+            code, ocr_text = image_processor.process_image_improved(file_path)
 
             if code:
                 if card_exists(code):

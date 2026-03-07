@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify, send_from_directory, url_for
 from services.tcg_api_client import get_card_by_code
-from repositories.cards_repository import add_card_quantity, card_exists, get_all_cards, save_to_db
+from repositories.cards_repository import add_card_quantity, card_exists, get_all_cards, save_to_db, delete_card_by_code
 import os
 
 ERROR_IMAGES_FOLDER = 'images_with_errors'
@@ -78,5 +78,13 @@ def save_error_card(card_id):
            
         
         return jsonify({'message': 'Card saved successfully'}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    
+@library_bp.route('/library/<card_id>', methods=['DELETE'])
+def delete_card(card_id):
+    try:
+        delete_card_by_code(card_id)
+        return jsonify({'message': 'Card deleted successfully'}), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
