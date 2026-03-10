@@ -1,0 +1,24 @@
+<main>
+  <h2>Scan Cards</h2>
+  <form (ngSubmit)="onSubmit()">
+    <div class="mb-3">
+      <label for="formFileMultiple" class="form-label"> Input card images </label>
+
+      <input
+        class="form-control form-control-lg"
+        type="file"
+        id="formFileMultiple"
+        multiple
+        (change)="onFileSelected($event)"
+      />
+    </div>
+
+    <button
+      type="submit"
+      class="btn btn-outline-primary"
+      [disabled]="!selectedFiles.length || loading"
+    >
+      {{ loading ? 'Uploading...' : 'Upload' }}
+    </button>
+  </form>
+</main>

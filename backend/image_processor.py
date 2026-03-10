@@ -93,10 +93,6 @@ def detect_card_by_color(img):
     
     return None
 
-import cv2
-import numpy as np
-from PIL import Image
-import imagehash
 
 def detect_card_contour(img):
     """Detecta automaticamente o contorno da carta"""
@@ -178,12 +174,12 @@ def smart_card_extraction(img, fallback_percentages=None):
         print(f"Erro na detecção por contorno: {e}")
     
     #Método 2: Detecção por cor
-    try:
-        card_by_color = detect_card_by_color(img)
-        if card_by_color is not None:
-            extraction_methods.append(("color", card_by_color))
-    except Exception as e:
-        print(f"Erro na detecção por cor: {e}")
+    # try:
+    #     card_by_color = detect_card_by_color(img)
+    #     if card_by_color is not None:
+    #         extraction_methods.append(("color", card_by_color))
+    # except Exception as e:
+    #     print(f"Erro na detecção por cor: {e}")
     
     # Método 3: Recorte por porcentagem (fallback)
     y1, y2 = int(fallback_percentages['y1_pct'] * h), int(fallback_percentages['y2_pct'] * h)
