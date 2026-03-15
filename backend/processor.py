@@ -73,7 +73,13 @@ def start_processing(folder_path):
 
             with status_lock:
                 processing_status["current"] = index
-        string_json = json.dumps(localCards, default=lambda o: o.__dict__, ensure_ascii=False)
+        existing_data = []
+        if os.path.exists('processed_cards.json'):
+            with open('processed_cards.json', 'r', encoding='utf-8') as f:
+                existing_data = json.load(f)
+        new_data = [card.__dict__ for card in localCards]
+        combined_data = existing_data + new_data
+        string_json = json.dumps(combined_data, ensure_ascii=False)
         with open('processed_cards.json', 'w', encoding='utf-8') as f:
             f.write(string_json)        
 
