@@ -6,15 +6,8 @@
           <app-upload-cards *ngIf="showCardsUpload" 
                              (uploadComplete)="proceedToReview()">
           </app-upload-cards>
-
-          <app-cards-review *ngIf="showCardsReview"></app-cards-review>
-
-          <!-- example reset button so you can toggle back while developing -->
-          <button *ngIf="showCardsReview" (click)="reset()" class="btn btn-link mt-3">
-            Voltar para upload
-          </button>
           <br />
-          <app-processing-bar></app-processing-bar>
+          <app-processing-bar (processingComplete)="proceedToReview()"></app-processing-bar>
         </div>
       </div>
     </div>

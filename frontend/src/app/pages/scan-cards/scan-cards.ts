@@ -2,13 +2,13 @@
 
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 import { ProcessingBar } from '../processing-bar/processing-bar';
 import { UploadCards } from '../upload-cards/upload-cards';
-import { CardsReview } from '../cards-review/cards-review';
 @Component({
   selector: 'app-scan-cards',
   standalone: true,
-  imports: [ProcessingBar, UploadCards, CardsReview, CommonModule],
+  imports: [ProcessingBar, UploadCards, CommonModule],
   templateUrl: './scan-cards.html',
   styleUrl: './scan-cards.css',
 })
@@ -25,9 +25,11 @@ export class ScanCards {
     return this.stage === 'review';
   }
 
+  constructor(private router: Router) {}
+
   // methods to move between stages
   proceedToReview(): void {
-    this.stage = 'review';
+    this.router.navigate(['/cards-review']);
   }
 
   reset(): void {
