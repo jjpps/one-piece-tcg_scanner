@@ -51,15 +51,12 @@ def start_processing(folder_path):
 
             if code:
                 if card_exists(code):
-                    add_card_quantity(code)
-                    print(f"Cartão já existe. Quantidade atualizada: {code}")
-                    os.remove(file_path)
+                    card = get_card_by_code(code)
+                    localCards.append(LocalCard(file_path,card.card_image,card.card_name,code,True))                    
                 else:
                     card = get_card_by_code(code)
                     if card:
-                        save_to_db(card.card_set_id ,card.card_image ,card.card_name)
-                        print(f"Cartão salvo: {code}")
-                        os.remove(file_path)
+                        localCards.append(LocalCard(file_path,card.card_image,card.card_name,code,True))
                     else:
                         print(f"Cartão não encontrado na API: {code}")
                         file_ext = os.path.splitext(file_path)[1]
@@ -91,4 +88,3 @@ def start_processing(folder_path):
 
     thread = threading.Thread(target=worker)
     thread.start()
-

@@ -1,6 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { catchError, Observable, of, startWith, Subject, switchMap } from 'rxjs';
+import { Observable, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 import { ReviewService } from '../../services/review.service';
 import { LibraryCard } from '../../interfaces/LibraryCard';
 
@@ -11,29 +12,28 @@ import { LibraryCard } from '../../interfaces/LibraryCard';
   templateUrl: './cards-review.html',
   styleUrl: './cards-review.css',
 })
-export class CardsReview {
+export class CardsReview implements OnInit {
 
-  reviewState$!: Observable<any>;
-  private refresh$ = new Subject<void>();
+  reviewState$!: Observable<LibraryCard[]>;
 
-  constructor(private reviewService:ReviewService) {
-    this.reviewState$ = this.refresh$.pipe(
-          startWith(void 0), 
-          switchMap(() =>
-            this.reviewService.getCardToReview().pipe(
-              catchError((err) => {
-                console.error('Erro ao carregar biblioteca', err);
-                return of([]);
-              })
-            )
-          )
-        );
+  constructor(private reviewService: ReviewService) {
+    this.reviewState$ = this.reviewService.getCardToReview().pipe(
+      catchError((err) => {
+        console.error('Erro ao carregar biblioteca', err);
+        return of([]);
+      })
+    );
   }
-  approve(card:LibraryCard){
+
+  ngOnInit(): void {
+    this.reviewService.loadCards();
+  }
+
+  approve(card: LibraryCard) {
     this.reviewService.approveCard(card).subscribe({
       next: () => {
         console.log('Carta aprovada com sucesso');
-        this.refresh$.next(); 
+        this.reviewService.loadCards();
       },
       error: (err) => {
         console.error('Erro ao aprovar carta', err);
@@ -41,11 +41,12 @@ export class CardsReview {
       },
     });
   }
-  reject(card:LibraryCard){
+
+  reject(card: LibraryCard) {
     this.reviewService.reproveCard(card).subscribe({
       next: () => {
         console.log('Carta reprovada com sucesso');
-        this.refresh$.next(); 
+        this.reviewService.loadCards();
       },
       error: (err) => {
         console.error('Erro ao reprovar carta', err);

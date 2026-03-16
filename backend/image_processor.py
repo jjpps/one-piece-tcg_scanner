@@ -156,8 +156,8 @@ def smart_card_extraction(img, fallback_percentages=None):
     
     if fallback_percentages is None:
         fallback_percentages = {
-            'y1_pct': 0.25, 'y2_pct': 0.86,
-            'x1_pct': 0.04, 'x2_pct': 0.95
+            'y1_pct': 0.38, 'y2_pct': 0.86,
+            'x1_pct': 0.01, 'x2_pct': 0.88
         }
     
     h, w, _ = img.shape

@@ -16,13 +16,16 @@ export class ReviewBadge implements OnInit {
   constructor(private reviewService: ReviewService) {}
 
   ngOnInit(): void {
+    this.reviewService.loadCards();
     this.reviewService.getCardToReview().subscribe({
       next: (cards) => {
+        console.log('Received cards for review:', cards.length);
         this.quantity = Array.isArray(cards) ? cards.length : 0;
       },
       error: () => {
         this.quantity = 0;
       },
     });
+    console.log('ReviewBadge initialized with quantity:', this.quantity);
   }
 }
