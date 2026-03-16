@@ -29,7 +29,7 @@ export class ScanCards {
 
   // methods to move between stages
   proceedToReview(): void {
-    this.router.navigate(['/cards-review']);
+    this.router.navigate(['/home']);
   }
 
   reset(): void {
