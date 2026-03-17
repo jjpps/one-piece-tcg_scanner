@@ -21,16 +21,3 @@ def init_db():
     conn.commit()
     conn.close()
 
-
-def save_to_db(filename, code):
-    conn = sqlite3.connect(DB_PATH)
-    c = conn.cursor()
-
-    c.execute(
-        'INSERT INTO cards (filename, code) VALUES (?, ?)',
-        (filename, code)
-    )
-
-    conn.commit()
-    conn.close()
-

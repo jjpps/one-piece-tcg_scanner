@@ -1,58 +1,38 @@
-import { HttpClient } from '@angular/common/http';
+
+
 import { Component } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { ProcessingService } from '../../services/processing.service';
+import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 import { ProcessingBar } from '../processing-bar/processing-bar';
+import { UploadCards } from '../upload-cards/upload-cards';
 @Component({
   selector: 'app-scan-cards',
-  imports: [FormsModule,ProcessingBar],
+  standalone: true,
+  imports: [ProcessingBar, UploadCards, CommonModule],
   templateUrl: './scan-cards.html',
   styleUrl: './scan-cards.css',
 })
 export class ScanCards {
-selectedFiles: File[] = [];
-  loading = false;
+  // internal state can be an enum/string to simplify visibility logic
+  private stage: 'upload' | 'review' = 'upload';
 
-  private apiUrl = 'http://localhost:5000/api/upload';
-
-  constructor(
-    private http: HttpClient,
-    private processingService: ProcessingService
-  ) {}
-
-  onFileSelected(event: Event): void {
-    const input = event.target as HTMLInputElement;
-
-    if (!input.files || input.files.length === 0) return;
-
-    this.selectedFiles = Array.from(input.files);
-    console.log('Arquivos selecionados:', this.selectedFiles);
+  // getters provide a clean way to bind in the template
+  get showCardsUpload(): boolean {
+    return this.stage === 'upload';
   }
 
-  onSubmit(): void {
-    if (!this.selectedFiles.length) return;
+  get showCardsReview(): boolean {
+    return this.stage === 'review';
+  }
 
-    const formData = new FormData();
+  constructor(private router: Router) {}
 
-    this.selectedFiles.forEach((file) => {
-      formData.append('images', file);
-    });
+  // methods to move between stages
+  proceedToReview(): void {
+    this.router.navigate(['/home']);
+  }
 
-    this.loading = true;
-    console.log('Enviando arquivos para:', this.apiUrl);
-
-    this.http.post(this.apiUrl, formData).subscribe({
-      next: (response) => {
-        console.log('Upload sucesso:', response);
-        this.loading = false;
-        this.selectedFiles = [];        
-        this.processingService.startPolling();
-      },
-      error: (error) => {
-        console.error('Erro no upload:', error);
-        this.loading = false;
-        alert('Ocorreu um erro ao enviar os arquivos. Por favor, tente novamente.');
-      },
-    });
+  reset(): void {
+    this.stage = 'upload';
   }
 }
