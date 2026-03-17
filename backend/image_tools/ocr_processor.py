@@ -2,6 +2,7 @@ import cv2
 import re
 import numpy as np
 import pytesseract
+from image_tools.llm_processor import _extrair_id_via_llm
 import repositories.cards_hash_repository as cards_hash_repository
 from PIL import Image
 import sys
@@ -132,6 +133,9 @@ def process_image(image_path):
     carta, extraction_method = extrair_carta(img)
  
     card_id = extrair_id_por_ocr(carta)
+    if not card_id:
+        print("OCR falhou — tentando LLM...")
+        card_id = _extrair_id_via_llm(carta)
     print(f"ID detectado: {card_id}")
  
     if card_id:
