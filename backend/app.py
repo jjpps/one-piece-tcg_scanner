@@ -2,15 +2,13 @@ from flask import Flask, jsonify
 from flask_cors import CORS
 from database import init_db
 from routes import register_routes
-from createDataSet import create_local_data_set
 
 
 def create_app():
     app = Flask(__name__)
     CORS(app)
     # Inicializa banco
-    init_db()    
-    create_local_data_set()
+    init_db()
     # Registra rotas
     register_routes(app)
 

@@ -43,6 +43,10 @@ def approve_card(card: LocalCard) -> bool:
                 add_card_quantity(item.get("card_set_id"))
             else:
                 save_to_db(item.get("card_set_id"), item.get("card_image"), item.get("card_name"))
+            image_filename = Path(card.local_imagem).name
+            file_path = Path(__file__).parent.parent / IMAGES_FOLDER / image_filename
+            if file_path.exists():
+                file_path.unlink()
             data.remove(item)
             with DATA_FILE.open("w", encoding="utf-8") as f:
                 json.dump(data, f, ensure_ascii=False, indent=4)

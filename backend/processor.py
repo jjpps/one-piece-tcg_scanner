@@ -2,9 +2,9 @@ import threading
 import os
 import uuid
 from dtos.local_card_dto import LocalCard
-import image_processor
+from image_tools import ocr_processor
 from services.tcg_api_client import get_card_by_code
-from repositories.cards_repository import save_to_db, card_exists, add_card_quantity
+from repositories.cards_repository import card_exists
 import json
 ERROR_IMAGES_FOLDER = 'images_with_errors'
 processing_status = {
@@ -47,7 +47,7 @@ def start_processing(folder_path):
             processing_status["processing"] = True
         localCards = []
         for index, file_path in enumerate(files, start=1):
-            code, ocr_text = image_processor.process_image_improved(file_path)
+            code, ocr_text = ocr_processor.process_image(file_path)
 
             if code:
                 if card_exists(code):

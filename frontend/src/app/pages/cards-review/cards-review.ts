@@ -4,6 +4,7 @@ import { Observable, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { ReviewService } from '../../services/review.service';
 import { LibraryCard } from '../../interfaces/LibraryCard';
+import { LocalCard } from '../../interfaces/LocalCard';
 
 @Component({
   selector: 'app-cards-review',
@@ -14,7 +15,7 @@ import { LibraryCard } from '../../interfaces/LibraryCard';
 })
 export class CardsReview implements OnInit {
 
-  reviewState$!: Observable<LibraryCard[]>;
+  reviewState$!: Observable<LocalCard[]>;
 
   constructor(private reviewService: ReviewService) {
     this.reviewState$ = this.reviewService.getCardToReview().pipe(
@@ -29,7 +30,7 @@ export class CardsReview implements OnInit {
     this.reviewService.loadCards();
   }
 
-  approve(card: LibraryCard) {
+  approve(card: LocalCard) {
     this.reviewService.approveCard(card).subscribe({
       next: () => {
         console.log('Carta aprovada com sucesso');
@@ -42,7 +43,7 @@ export class CardsReview implements OnInit {
     });
   }
 
-  reject(card: LibraryCard) {
+  reject(card: LocalCard) {
     this.reviewService.reproveCard(card).subscribe({
       next: () => {
         console.log('Carta reprovada com sucesso');
