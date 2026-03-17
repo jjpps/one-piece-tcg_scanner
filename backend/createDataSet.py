@@ -32,7 +32,7 @@ def create_local_data_set() :
                 resp.raise_for_status()
                 img = Image.open(BytesIO(resp.content))
                 img = img.resize((512,512))
-                h = imagehash.phash(img)
+                h = imagehash.phash(img, hash_size=16)
                 save_card_hash(code, str(h))
             except Exception as exc:
                 print(f"error processing card {code} from set {set_id}: {exc}")

@@ -13,23 +13,20 @@ def process_image_improved(image_path):
     img = cv2.imread(image_path)
     if img is None:
         return None, "Erro: Não foi possível carregar a imagem"
-    
-    h, w, _ = img.shape
-    #print(f"Dimensões da imagem: {w}x{h}")
- 
  
     carta_isolada, extraction_method = smart_card_extraction(img)    
  
     # Salvar carta para ver
-    cv2.imwrite("debug_detected_card.jpg", carta_isolada)
- 
-    # Pré-processamento opcional
-    carta_processada = cv2.GaussianBlur(carta_isolada, (3, 3), 0)
-    #carta_processada = carta_isolada
+    cv2.imwrite("debug_detected_card.jpg", carta_isolada)     
+   
  
     # Gerar hash
-    pil_img = Image.fromarray(cv2.cvtColor(carta_processada, cv2.COLOR_BGR2RGB))
-    scan_hash = imagehash.phash(pil_img, hash_size=8)
+    pil_img = Image.fromarray(cv2.cvtColor(carta_isolada, cv2.COLOR_BGR2RGB))
+    pil_img = pil_img.resize((512, 512))
+    scan_hash = imagehash.phash(pil_img,hash_size=16) 
+
+    pil_img.save("debug_pre_hash.jpg")
+    print(f"Hash gerado: {scan_hash}") 
     
     #print(f"Hash gerado: {scan_hash}")
  
@@ -43,7 +40,9 @@ def process_image_improved(image_path):
                 db_hash = imagehash.hex_to_hash(db_hash_str)
             else:
                 db_hash = db_hash_str
-                
+            if db_hash.hash.size != scan_hash.hash.size:
+                print(f"ERRO: tamanho incompatível — banco={db_hash.hash.size} scan={scan_hash.hash.size}")
+                continue
             distance = scan_hash - db_hash
             
             if distance < best_distance:
