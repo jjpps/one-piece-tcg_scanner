@@ -1,7 +1,5 @@
 from pathlib import Path
-
 from flask import Blueprint, request, jsonify, send_from_directory, url_for
-
 from dtos.local_card_dto import LocalCard
 from services.review_service import get_local_cards_as_dicts, approve_card, reprove_card
 

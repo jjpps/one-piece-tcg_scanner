@@ -1,10 +1,7 @@
 import cv2
 import re
-import numpy as np
 import pytesseract
 from image_tools.llm_processor import _extrair_id_via_llm
-import repositories.cards_hash_repository as cards_hash_repository
-from PIL import Image
 import sys
 
 ID_REGION = {'y1': 0.85, 'y2': 0.97, 'x1': 0.55, 'x2': 0.92}
