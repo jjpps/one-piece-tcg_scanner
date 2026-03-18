@@ -56,7 +56,7 @@ def start_processing(folder_path):
                 else:
                     card = get_card_by_code(code)
                     if card:
-                        localCards.append(LocalCard(file_path,card.card_image,card.card_name,code,True))
+                        localCards.append(LocalCard(file_path,card.card_image,card.card_name,code,False))
                     else:
                         print(f"Cartão não encontrado na API: {code}")
                         file_ext = os.path.splitext(file_path)[1]

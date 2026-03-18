@@ -15,7 +15,7 @@ def _extrair_id_via_llm(carta_cv):
     img_base64 = base64.b64encode(buffer).decode('utf-8')
 
     response = ollama.chat(
-        model='llama3.2-vision',
+        model='glm-ocr',
         messages=[{
             'role': 'user',
             'content': 'This is the bottom of a One Piece trading card. Read the card ID code (format: XX##-###, example: EB03-021). Reply with ONLY the ID code, nothing else.',

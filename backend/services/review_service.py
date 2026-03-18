@@ -4,7 +4,7 @@ import uuid
 from pathlib import Path
 from typing import List
 from dtos.local_card_dto import LocalCard
-from repositories.cards_repository import add_card_quantity,save_to_db
+from repositories.cards_repository import add_card_quantity,save_to_db, card_exists
 
 
 # the path to processed_cards.json is relative to this services directory's parent (backend)
@@ -38,7 +38,7 @@ def approve_card(card: LocalCard) -> bool:
         data = json.load(f)
     for item in data:
         if item.get("local_imagem") == card.local_imagem:
-            if item.get("exists"):
+            if card_exists(item.get("card_set_id")):
                 add_card_quantity(item.get("card_set_id"))
             else:
                 save_to_db(item.get("card_set_id"), item.get("card_image"), item.get("card_name"))
