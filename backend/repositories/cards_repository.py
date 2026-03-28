@@ -113,3 +113,15 @@ def delete_card_by_code(code):
 
     conn.commit()
     conn.close()
+
+def remove_card_quantity(code):
+    conn = sqlite3.connect(DB_PATH)
+    c = conn.cursor()
+
+    c.execute(
+        'UPDATE cards SET quantity = quantity - 1 WHERE code = ? AND quantity > 0',
+        (code,)
+    )
+
+    conn.commit()
+    conn.close()

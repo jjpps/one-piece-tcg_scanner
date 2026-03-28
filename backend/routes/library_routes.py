@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify, send_from_directory, url_for
 from services.tcg_api_client import get_card_by_code
-from repositories.cards_repository import add_card_quantity, card_exists, get_all_cards, save_to_db, delete_card_by_code
+from repositories.cards_repository import add_card_quantity, card_exists, get_all_cards, save_to_db, remove_card_quantity
 import os
 
 ERROR_IMAGES_FOLDER = 'images_with_errors'
@@ -82,10 +82,41 @@ def save_error_card(card_id):
     except Exception as e:
         return jsonify({'error': str(e)}), 500
     
-@library_bp.route('/library/<card_id>', methods=['DELETE'])
+@library_bp.route('/library/removeCard/<card_id>', methods=['DELETE'])
 def delete_card(card_id):
+    try:       
+        code = card_id.strip().upper()        
+        if not card_id:
+            return jsonify({'error': 'Code is required'}), 400
+        
+        if code:
+            if card_exists(code):
+                remove_card_quantity(code)                
+            else:
+                return jsonify({'message': 'No card_id found'}), 400
+        else:            
+            return jsonify({'message': 'No card_id found'}), 400
+        return jsonify({'message': 'Card remove successfully'}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@library_bp.route('/library/addCard', methods=['POST'])
+def add_card():
     try:
-        delete_card_by_code(card_id)
-        return jsonify({'message': 'Card deleted successfully'}), 200
+        data = request.get_json()
+        code = data.get('code')
+        
+        if not code:
+            return jsonify({'error': 'Code is required'}), 400
+        code = code.strip().upper()
+        if code:
+            if card_exists(code):
+                add_card_quantity(code)
+                print(f"Cartão já existe. Quantidade atualizada: {code}")
+            else:
+                return jsonify({'message': 'No card_id found'}), 400
+        else:            
+            return jsonify({'message': 'No card_id found'}), 400
+        return jsonify({'message': 'Card added successfully'}), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500

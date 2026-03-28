@@ -23,8 +23,31 @@
             </h6>
 
             <p class="card-text mb-1"><strong>Código:</strong> {{ card.code }}</p>
-
-            <p class="card-text"><strong>Quantidade:</strong> {{ card.quantity }}</p>
+            <div
+              class="row row-cols-1 row-cols-sm-2 row-cols-md-3 align-items-center g-2 card-actions"
+            >
+              <div class="col">
+                <button type="button" class="btn btn-danger w-100" (click)="removeCard(card.code)">
+                  <i class="bi bi-dash"></i>
+                </button>
+              </div>
+              <div class="col">
+                <div class="quantity-box">
+                  {{ card.quantity }}
+                </div>
+              </div>
+              <div class="col">
+                <button type="button" class="btn btn-success w-100" (click)="addCard(card.code)">
+                  <i class="bi bi-plus"></i>
+                </button>
+              </div>
+            </div>
+            <span
+              *ngIf="card.quantity > 4"
+              class="badge text-bg-danger d-inline-flex justify-content-center align-items-center w-100 h-100"
+            >
+              Repetidas
+            </span>
           </div>
         </div>
       </div>
