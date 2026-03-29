@@ -37,8 +37,7 @@ def start_processing(folder_path):
             with status_lock:
                 processing_status["total"] = 0
                 processing_status["current"] = 0
-                processing_status["processing"] = False
-            print("Nenhuma imagem encontrada para processar.")
+                processing_status["processing"] = False            
             return
 
         with status_lock:
@@ -57,13 +56,11 @@ def start_processing(folder_path):
                     card = get_card_by_code(code)
                     if card:
                         localCards.append(LocalCard(file_path,card.card_image,card.card_name,code,False))
-                    else:
-                        print(f"Cartão não encontrado na API: {code}")
+                    else:                        
                         file_ext = os.path.splitext(file_path)[1]
                         unique_filename = f"{uuid.uuid4()}{file_ext}"
                         os.rename(file_path, os.path.join(ERROR_IMAGES_FOLDER, unique_filename))                
             else:
-                print(f"Falha ao processar: {file_path} (OCR: {ocr_text})")
                 file_ext = os.path.splitext(file_path)[1]
                 unique_filename = f"{uuid.uuid4()}{file_ext}"
                 os.rename(file_path, os.path.join(ERROR_IMAGES_FOLDER, unique_filename))

@@ -6,13 +6,42 @@
     <!-- Loading -->
     <div *ngIf="cards === null" class="text-center mt-4">Carregando biblioteca...</div>
 
+    <div class="row gx-1 gy-2 align-items-center">
+      <div class="col">
+        <div class="input-group">
+          <select
+            class="form-select col-2"
+            aria-label="Search by"
+            [(ngModel)]="searchBy"
+            name="searchBy"
+            style="min-width: 140px; max-width: 160px;"
+          >
+            <option value="code">Code</option>
+            <option value="name">Name</option>
+            <option value="color" disabled>Color</option>
+          </select>
+          <input
+            class="form-control rounded-0"
+            type="text"
+            placeholder="Buscar"
+            aria-label="Search term"
+            [(ngModel)]="searchTerm"
+            name="searchTerm"
+            (keydown.enter)="search()"
+          />
+          <button class="btn btn-primary rounded-end" type="button" aria-label="Pesquisar" (click)="search()">
+            <i class="bi bi-search"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+    <br />
     <!-- Grid -->
     <div
       *ngIf="cards !== null"
       class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-5 g-4"
     >
       <p *ngIf="cards.length === 0" class="text-center w-100">Nenhuma carta na biblioteca.</p>
-
       <div class="col" *ngFor="let card of cards">
         <div class="card h-100 shadow-sm">
           <img [src]="card.image_url" class="card-img-top" [alt]="card.card_name" />
