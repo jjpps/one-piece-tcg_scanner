@@ -22,9 +22,5 @@ def _extrair_id_via_llm(carta_cv):
             'images': [img_base64]
         }]
     )
-
-    texto = response['message']['content'].strip()
-    print(f"LLM leu: '{texto}'")
-
-    match = ID_PATTERN.search(texto)
+    match = ID_PATTERN.search(response['message']['content'].strip())
     return match.group() if match else None

@@ -100,8 +100,7 @@ def extrair_id_por_ocr(carta_cv):
     cv2.imwrite("debug_ocr_region.jpg", thresh)
 
     texto = pytesseract.image_to_string(thresh, config=TESS_CONFIG).strip()
-    texto = _corrigir_ocr(texto)
-    print(f"OCR leu: '{texto}'")
+    texto = _corrigir_ocr(texto)    
 
     match = re.search(r'(OP|ST|EB)\d{2}-\d{3}', texto)
     return match.group() if match else None
@@ -123,20 +122,21 @@ def _corrigir_ocr(texto):
 # ---------------------------------------------------------------------------
  
 def process_image(image_path):
-    img = cv2.imread(image_path)
-    if img is None:
-        return None, "Erro: não foi possível carregar a imagem"
- 
-    carta, extraction_method = extrair_carta(img)
- 
-    card_id = extrair_id_por_ocr(carta)
-    if not card_id:
-        print("OCR falhou — tentando LLM...")
-        card_id = _extrair_id_via_llm(carta)
-    print(f"ID detectado: {card_id}")
- 
-    if card_id:
-        return card_id, f"ocr, method={extraction_method}"
- 
-    return None, f"ocr_failed, method={extraction_method}"
+    try:
+        img = cv2.imread(image_path)
+        if img is None:
+            return None, "Erro: não foi possível carregar a imagem"
+    
+        carta, extraction_method = extrair_carta(img)
+    
+        card_id = extrair_id_por_ocr(carta)
+        if not card_id:        
+            card_id = _extrair_id_via_llm(carta)    
+    
+        if card_id:
+            return card_id, f"ocr, method={extraction_method}"
+    
+        return None, f"ocr_failed, method={extraction_method}"
+    except Exception as e:
+        return None, f"Erro ao processar imagem: {image_path}, {str(e)}"
  
