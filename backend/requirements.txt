@@ -1,7 +1,7 @@
 flask
 flask-cors
 requests
-opencv-python==4.13.0.92
-pillow==12.1.1
-pytesseract==0.3.13
+opencv-python
+pytesseract
 imagehash
+ollama
