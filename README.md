@@ -135,7 +135,7 @@ The Angular app runs at `http://localhost:4200`.
 
 ## Picture Angle 
 
-Today the code are configured to read a picture in this [angle](docs/picture.jpg). If you need to change the angle or need to adjust to your picute the code you have to change can be found on `backend/image_tools/ocr_processor.py`
+Today the code are configured to read a picture in this [angle](picture.jpg). If you need to change the angle or need to adjust to your picute the code you have to change can be found on `backend/image_tools/ocr_processor.py`
 ```python
 ID_REGION = {'y1': 0.85, 'y2': 0.97, 'x1': 0.55, 'x2': 0.92}
 ```
