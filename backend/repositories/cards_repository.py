@@ -30,13 +30,36 @@ def get_card_by_code(code):
     c = conn.cursor()
 
     c.execute(
-        'SELECT code,image_url,card_name FROM cards WHERE code = ?',
+        'SELECT code,image_url,card_name,quantity FROM cards WHERE code = ?',
         (code,)
     )
 
     result = c.fetchone()
     conn.close()
     return result is not None
+
+
+def get_card_data_by_code(code):
+    conn = sqlite3.connect(DB_PATH)
+    c = conn.cursor()
+
+    c.execute(
+        'SELECT code,image_url,card_name,quantity FROM cards WHERE code = ?',
+        (code,)
+    )
+
+    row = c.fetchone()
+    conn.close()
+
+    if row:
+        return {
+            'code': row[0],
+            'image_url': row[1],
+            'card_name': row[2],
+            'quantity': row[3]
+        }
+
+    return None
 
 def add_card_quantity(code):
     conn = sqlite3.connect(DB_PATH)

@@ -1,0 +1,17 @@
+.img-disabled {
+  filter: grayscale(100%);
+  opacity: 0.6; /* opcional, ajuda a parecer desabilitado */
+}
+.img-low {
+  filter: grayscale(70%);
+  opacity: 0.85;
+  position: relative;
+}
+
+.img-low::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 193, 7, 0.25); /* amarelo bootstrap */
+  pointer-events: none;
+}

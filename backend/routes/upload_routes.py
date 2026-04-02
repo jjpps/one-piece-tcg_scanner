@@ -1,6 +1,7 @@
 from flask import Blueprint, request, jsonify
 import os
 import processor
+from services.upload_service import check_deck_cards
 
 upload_bp = Blueprint('upload', __name__)
 
@@ -46,3 +47,24 @@ def upload_images():
         "errors": errors,
         "total_uploaded": len(uploaded)
     })
+
+@upload_bp.route('/upload/deck', methods=['POST'])
+def upload_deck():    
+    try:
+        data = request.get_json()
+        deckName = data.get('metadata', {}).get('name')
+        cards = data.get('deck',{}).get('Main Deck',[])
+        anyCardOwned, processedDeckCards = check_deck_cards(cards)
+        if anyCardOwned:
+            return jsonify({
+                "deckName": deckName,
+                "cards": [card.__dict__ for card in processedDeckCards]
+            }), 200
+        else:
+            return jsonify({
+                "deckName": deckName,
+                "cards": None
+            }),404
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    

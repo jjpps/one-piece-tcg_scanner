@@ -1,0 +1,56 @@
+<div class="container mt-4">
+  <h1>{{ deckName }}</h1>
+
+  <div class="mb-3">
+    <button class="btn btn-primary" (click)="toggleView()">
+      {{ viewMode === 'card' ? 'Mostrar Lista' : 'Mostrar Cards' }}
+    </button>
+  </div>
+
+  <!-- Card View -->
+  <div *ngIf="viewMode === 'card'" class="row">
+    <div class="col-md-4" *ngFor="let card of cards">
+      <div class="card mb-3">
+        <img
+          [src]="card.image_url"
+          class="card-img-top"
+          [ngClass]="card.quantityOwned < card.quantityRequired ? 'img-disabled' : ''"
+          [alt]="card.card_name"
+        />
+        <div class="card-body">
+          <h5 class="card-title">{{ card.card_name }}</h5>
+          <p class="card-text">Código: {{ card.code }}</p>
+          <p class="card-text">Possuído: {{ card.quantityOwned }}</p>
+          <p class="card-text">Necessário: {{ card.quantityRequired }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- List View -->
+  <div *ngIf="viewMode === 'list'">
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>Code</th>
+          <th>Card Name</th>
+          <th>Owned</th>
+          <th>Required</th>
+          <th>Need to buy</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let card of cards" [ngClass]="card.quantityOwned === 0 ? 'table-danger' : (card.quantityOwned > 0 && card.quantityOwned < card.quantityRequired ? 'table-warning' : 'table-success')">
+          <td>{{ card.code }}</td>
+          <td>{{ card.card_name }}</td>
+          <td>{{ card.quantityOwned }}</td>
+          <td>{{ card.quantityRequired }}</td>
+          <td>{{ card.quantityRequired - card.quantityOwned }}</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="alert alert-info">
+      <strong>Total de cartas faltantes: {{ totalMissing }}</strong>
+    </div>
+  </div>
+</div>

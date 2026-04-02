@@ -1,0 +1,23 @@
+.json-editor {
+  font-family: 'Fira Code', 'Courier New', Consolas, monospace;
+  font-size: 0.95rem;
+  background-color: #1e1e1e;
+  color: #d4d4d4;
+  border: 1px solid #333;
+  border-radius: 0.25rem;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.03);
+  line-height: 1.45;
+  white-space: pre;
+  overflow: auto;
+}
+
+.json-editor:focus {
+  outline: none;
+  border-color: #6c757d;
+  box-shadow: 0 0 0 0.2rem rgba(108, 117, 125, 0.25);
+}
+
+.btn-outline-secondary,
+.btn-outline-primary {
+  min-width: 130px;
+}

@@ -1,0 +1,37 @@
+<main class="min-vh-100 d-flex align-items-center justify-content-center">
+  <div class="container text-center">
+    <div class="row justify-content-center">
+      <div class="col-12 col-md-6">
+        <div class="h-100 p-5 bg-body-tertiary border rounded-3">
+          <form (ngSubmit)="onSubmit()">
+            <div class="mb-3">
+              <label for="jsonEditor" class="form-label">Paste here the Json from https://onepiece.gg</label>
+              <textarea
+                id="jsonEditor"
+                class="form-control json-editor"
+                rows="16"
+                placeholder="Cole seu JSON formatado aqui..."
+                [(ngModel)]="jsonText"
+                name="jsonText"
+              ></textarea>              
+            </div>
+
+            <div class="mb-3 d-flex justify-content-center flex-wrap gap-2">
+              <button type="button" class="btn btn-outline-secondary" (click)="onFormatJson()">Format JSON</button>
+              <button
+                type="submit"
+                class="btn btn-outline-primary"
+                [disabled]="!jsonText || loading"
+              >
+                {{ loading ? 'Sending...' : 'Send JSON' }}
+              </button>
+            </div>
+
+            <div *ngIf="jsonError" class="alert alert-danger" role="alert">{{ jsonError }}</div>
+            <div *ngIf="jsonResult" class="alert alert-success" role="alert">{{ jsonResult }}</div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
