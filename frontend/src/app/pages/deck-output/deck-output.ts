@@ -48,4 +48,13 @@ export class DeckOutput implements OnInit {
   toggleView(): void {
     this.viewMode = this.viewMode === 'card' ? 'list' : 'card';
   }
+
+  copyList(): void {
+    const list = this.cards.filter(card => card.quantityOwned < card.quantityRequired).map(card => `${card.quantityRequired - card.quantityOwned} ${card.card_name} (${card.code})`).join('\n');
+    navigator.clipboard.writeText(list).then(() => {
+      alert('Lista copiada para a área de transferência!');
+    }).catch(err => {
+      console.error('Erro ao copiar: ', err);
+    });
+  }
 }

@@ -69,7 +69,7 @@ def save_error_card(card_id):
             else:
                 card = get_card_by_code(code)
                 if card:
-                    save_to_db(card.card_set_id ,card.card_image ,card.card_name)
+                    save_to_db(card)
                     print(f"Cartão salvo: {code}")
                     os.remove(os.path.join(ERROR_IMAGES_FOLDER, os.path.basename(card_id)))
                 

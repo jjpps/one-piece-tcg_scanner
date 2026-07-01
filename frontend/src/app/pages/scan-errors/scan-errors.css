@@ -1,0 +1,36 @@
+.image-zoom-container {
+  position: relative;
+  overflow: hidden;
+}
+
+.image-zoom-container img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.zoom-preview {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  width: 230px;
+  height: 230px;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;
+  pointer-events: none;
+  transition: opacity 120ms ease-in-out;
+  opacity: 1;
+  z-index: 2;
+}
+
+@media (max-width: 768px) {
+  .zoom-preview {
+    width: 180px;
+    height: 180px;
+    top: 0.5rem;
+    right: 0.5rem;
+  }
+}

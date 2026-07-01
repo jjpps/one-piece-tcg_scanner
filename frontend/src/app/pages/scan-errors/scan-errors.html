@@ -11,7 +11,21 @@
       <p *ngIf="cards.length === 0" class="text-center w-100">Nenhuma carta na biblioteca.</p>
       <div class="col" *ngFor="let card of cards">
         <div class="card h-100 shadow-sm">
-          <img [src]="card.image_url" class="card-img-top" [alt]="card.card_name" />
+          <div class="image-zoom-container">
+            <img
+              [src]="card.image_url"
+              class="card-img-top"
+              [alt]="card.card_name"
+              (mouseenter)="onImageMouseEnter(card.image_url, card.id, $event)"
+              (mousemove)="onImageMouseMove($event)"
+              (mouseleave)="onImageMouseLeave()"
+            />
+            <div
+              *ngIf="zoomActive && zoomImageSrc && activeZoomCardId === card.id"
+              class="zoom-preview"
+              [ngStyle]="zoomStyle"
+            ></div>
+          </div>
 
           <div class="card-body text-center">
             <input

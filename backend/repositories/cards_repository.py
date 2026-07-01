@@ -1,12 +1,26 @@
 import sqlite3
+from dtos.card_dto import Card
+
 DB_PATH = 'db.sqlite'
-def save_to_db(code,image_url=None, card_name=None, quantity=1):
+
+def save_to_db(card: Card, quantity=1):
+    """Save a Card object to the database with all fields."""
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
 
     c.execute(
-        'INSERT INTO cards (code,image_url,card_name,quantity) VALUES (?, ?, ?, ?)',
-        (code, image_url, card_name, quantity)
+        '''INSERT INTO cards 
+        (code, image_url, card_name, quantity, inventory_price, market_price, 
+         set_name, card_text, set_id, rarity, card_set_id, card_color, card_type, 
+         life, card_cost, card_power, sub_types, counter_amount, attribute, 
+         date_scraped, card_image_id, card_image)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)''',
+        (card.card_set_id, card.card_image, card.card_name, quantity, 
+         card.inventory_price, card.market_price, card.set_name, card.card_text,
+         card.set_id, card.rarity, card.card_set_id, card.card_color, card.card_type,
+         card.life, card.card_cost, card.card_power, card.sub_types, 
+         card.counter_amount, card.attribute, card.date_scraped, 
+         card.card_image_id, card.card_image)
     )
 
     conn.commit()

@@ -4,7 +4,8 @@ import uuid
 from pathlib import Path
 from typing import List
 from dtos.local_card_dto import LocalCard
-from repositories.cards_repository import add_card_quantity,save_to_db, card_exists
+from repositories.cards_repository import add_card_quantity, save_to_db, card_exists
+from services.tcg_api_client import get_card_by_code
 
 
 # the path to processed_cards.json is relative to this services directory's parent (backend)
@@ -41,7 +42,9 @@ def approve_card(card: LocalCard) -> bool:
             if card_exists(item.get("card_set_id")):
                 add_card_quantity(item.get("card_set_id"))
             else:
-                save_to_db(item.get("card_set_id"), item.get("card_image"), item.get("card_name"))
+                api_card = get_card_by_code(item.get("card_set_id"))
+                if api_card:
+                    save_to_db(api_card)
             image_filename = Path(card.local_imagem).name
             file_path = Path(__file__).parent.parent / IMAGES_FOLDER / image_filename
             if file_path.exists():

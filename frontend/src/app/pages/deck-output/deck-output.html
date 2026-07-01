@@ -1,9 +1,12 @@
 <div class="container mt-4">
   <h1>{{ deckName }}</h1>
 
-  <div class="mb-3">
+  <div class="mb-3 d-flex justify-content-between">
     <button class="btn btn-primary" (click)="toggleView()">
       {{ viewMode === 'card' ? 'Mostrar Lista' : 'Mostrar Cards' }}
+    </button>
+    <button class="btn btn-secondary" (click)="copyList()">
+      Copiar Lista
     </button>
   </div>
 
