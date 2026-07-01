@@ -2,19 +2,45 @@
 <hr />
 
 <div class="container">
-  <ng-container *ngIf="cardsNotDetected$ | async as cards">
+  <div *ngIf="cardsNotDetected$ | async as cards">
     <div *ngIf="cards === null" class="text-center mt-4">Carregando biblioteca...</div>
-    <div
-      *ngIf="cards !== null"
-      class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-5 g-4"
-    >
+    <div *ngIf="cards !== null">
+      <div class="global-panel mb-3" *ngIf="getSelectedCount() > 0">
+        <div class="input-group">
+          <input
+            type="text"
+            class="form-control"
+            placeholder="Digite o código e pressione Enter ou Aplicar"
+            [(ngModel)]="globalCode"
+            (keyup.enter)="applyCodeToSelected()"
+            [disabled]="applying"
+            aria-label="Código global para cartas selecionadas"
+          />
+          <button class="btn btn-primary" (click)="applyCodeToSelected()" [disabled]="applying" aria-label="Aplicar código às selecionadas">
+            Aplicar código às selecionadas ({{ getSelectedCount() }})
+          </button>
+        </div>
+      </div>
       <p *ngIf="cards.length === 0" class="text-center w-100">Nenhuma carta na biblioteca.</p>
+      <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-5 g-4" *ngIf="cards.length > 0">
+      
       <div class="col" *ngFor="let card of cards">
-        <div class="card h-100 shadow-sm">
+        <div class="card h-100 shadow-sm selectable-card" [class.selected]="selectedIds.has(card.id)">
+          <div
+            class="select-overlay"
+            role="checkbox"
+            tabindex="0"
+            [attr.aria-checked]="selectedIds.has(card.id)"
+            (click)="toggleSelection(card.id)"
+            (keydown)="onKeyToggle($event, card.id)"
+          >
+            <input type="checkbox" [checked]="selectedIds.has(card.id)" aria-hidden="true" />
+          </div>
           <div class="image-zoom-container">
             <img
               [src]="card.image_url"
               class="card-img-top"
+              loading="lazy"
               [alt]="card.card_name"
               (mouseenter)="onImageMouseEnter(card.image_url, card.id, $event)"
               (mousemove)="onImageMouseMove($event)"
@@ -28,22 +54,30 @@
           </div>
 
           <div class="card-body text-center">
-            <input
-              #codeInput
-              type="text"
-              class="form-control form-control-sm text-center mb-2"
-              [value]=""
-              [placeholder]="card.code"
-            />
-            <button
-              class="btn btn-primary btn-sm w-100"
-              (click)="saveCard(card.id, codeInput.value)"
-            >
-              Salvar Carta
-            </button>
+            <div class="card-title">{{ card.card_name }}</div>
+            <div class="card-code mb-2 text-muted">{{ card.code || '—' }}</div>
+            <div class="mb-2">
+              <input
+                type="text"
+                class="form-control form-control-sm"
+                [(ngModel)]="cardInputs[card.id]"
+                [placeholder]="card.code || 'Digite o código'"
+                [disabled]="cardStates[card.id] && cardStates[card.id].state === 'pending'"
+                aria-label="Código da carta {{ card.card_name }}"
+              />
+            </div>
+            <div class="status-row mb-2">
+              <span *ngIf="cardStates[card.id] && cardStates[card.id].state === 'pending'" class="badge bg-secondary">Processando...</span>
+              <span *ngIf="cardStates[card.id] && cardStates[card.id].state === 'success'" class="badge bg-success">Atualizado</span>
+              <span *ngIf="cardStates[card.id] && cardStates[card.id].state === 'error'" class="badge bg-danger">Erro</span>
+            </div>
+            <div class="d-flex gap-2">
+              <button class="btn btn-outline-primary btn-sm flex-fill" (click)="saveCard(card.id, cardInputs[card.id] || card.code || '')" aria-label="Salvar individual {{ card.card_name }}">Salvar individual</button>
+              <button *ngIf="cardStates[card.id] && cardStates[card.id].state === 'error'" class="btn btn-warning btn-sm" (click)="retryCard(card.id)" aria-label="Re-tentar {{ card.card_name }}">Re-tentar</button>
+            </div>
           </div>
         </div>
       </div>
     </div>
-  </ng-container>
+  </div>
 </div>
