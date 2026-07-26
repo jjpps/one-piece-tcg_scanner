@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify, send_from_directory, url_for
 from services.tcg_api_client import get_card_by_code
-from repositories.cards_repository import add_card_quantity, card_exists, get_all_cards, save_to_db, remove_card_quantity
+from repositories.cards_repository import add_card_quantity, card_exists, get_all_cards, get_distinct_card_colors, save_to_db, remove_card_quantity
 import os
 
 ERROR_IMAGES_FOLDER = 'images_with_errors'
@@ -16,12 +16,19 @@ def get_library():
             "image_url": card[1],
             "card_name": card[2],
             "quantity": card[3],
-            "date": card[4]
+            "date": card[4],
+            "card_color": card[5]
         }
         for card in cards
     ]
 
     return jsonify(library)
+
+
+@library_bp.route('/library/colors', methods=['GET'])
+def get_library_colors():
+    colors = get_distinct_card_colors()
+    return jsonify(colors)
     
 @library_bp.route('/library/errors', methods=['GET'])
 def get_error_images():

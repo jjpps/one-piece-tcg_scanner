@@ -5,25 +5,24 @@
         <div class="h-100 p-5 bg-body-tertiary border rounded-3">
           <form (ngSubmit)="onSubmit()">
             <div class="mb-3">
-              <label for="jsonEditor" class="form-label">Paste here the Json from https://onepiece.gg</label>
+              <label for="deckListEditor" class="form-label">Cole a lista de cartas com quantidade e código</label>
               <textarea
-                id="jsonEditor"
+                id="deckListEditor"
                 class="form-control json-editor"
                 rows="16"
-                placeholder="Cole seu JSON formatado aqui..."
-                [(ngModel)]="jsonText"
-                name="jsonText"
-              ></textarea>              
+                placeholder="Exemplo:&#10;2 EB03-021&#10;1 FR02-001&#10;3 OP01-123"
+                [(ngModel)]="listText"
+                name="listText"
+              ></textarea>
             </div>
 
             <div class="mb-3 d-flex justify-content-center flex-wrap gap-2">
-              <button type="button" class="btn btn-outline-secondary" (click)="onFormatJson()">Format JSON</button>
               <button
                 type="submit"
                 class="btn btn-outline-primary"
-                [disabled]="!jsonText || loading"
+                [disabled]="!listText || loading"
               >
-                {{ loading ? 'Sending...' : 'Send JSON' }}
+                {{ loading ? 'Enviando...' : 'Enviar lista' }}
               </button>
             </div>
 

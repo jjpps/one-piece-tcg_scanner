@@ -18,7 +18,17 @@
           >
             <option value="code">Code</option>
             <option value="name">Name</option>
-            <option value="color" disabled>Color</option>
+          </select>
+          <select
+            class="form-select col-2"
+            aria-label="Filter by color"
+            [(ngModel)]="selectedColor"
+            name="selectedColor"
+            (change)="onColorChange(selectedColor)"
+            style="min-width: 140px; max-width: 180px;"
+          >
+            <option value="">Todas as cores</option>
+            <option *ngFor="let color of (cardColors$ | async) || []" [value]="color">{{ color }}</option>
           </select>
           <input
             class="form-control rounded-0"

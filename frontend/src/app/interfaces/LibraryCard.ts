@@ -4,4 +4,5 @@ export interface LibraryCard {
   image_url: string;
   card_name: string;
   quantity: number;
+  card_color?: string | null;
 }

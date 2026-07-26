@@ -91,11 +91,22 @@ def get_all_cards():
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
 
-    c.execute('SELECT code,image_url,card_name,quantity,date(processed_at) as processed_at FROM cards order by processed_at desc')
+    c.execute('SELECT code,image_url,card_name,quantity,date(processed_at) as processed_at, card_color FROM cards order by processed_at desc')
     cards = c.fetchall()
 
     conn.close()
     return cards
+
+
+def get_distinct_card_colors():
+    conn = sqlite3.connect(DB_PATH)
+    c = conn.cursor()
+
+    c.execute("SELECT DISTINCT card_color FROM cards WHERE card_color IS NOT NULL AND TRIM(card_color) <> '' ORDER BY card_color")
+    colors = [row[0] for row in c.fetchall()]
+
+    conn.close()
+    return colors
 
 
 def save_card_hash(code, hash_value):    

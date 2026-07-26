@@ -12,12 +12,19 @@ class DeckCard:
 
     @staticmethod
     def from_dict(item: Dict[str, Any]) -> "DeckCard":
+        code = item.get("code") or item.get("id") or ""
+        quantity_required = (
+            item.get("quantity")
+            or item.get("count")
+            or item.get("quantityRequired")
+            or 0
+        )
         return DeckCard(
-            code=item.get("id", ""),
+            code=str(code),
             image_url=item.get("image_url", ""),
             card_name=item.get("card_name", ""),
             quantityOwned=item.get("quantityOwned", 0),
-            quantityRequired=item.get("count", 0),
+            quantityRequired=int(quantity_required) if str(quantity_required).isdigit() else 0,
         )
 
     @staticmethod

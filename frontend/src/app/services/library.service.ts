@@ -12,6 +12,9 @@ export class LibraryService {
   getLibrary(): Observable<LibraryCard[]> {
     return this.http.get<LibraryCard[]>(this.apiUrl);
   }
+  getCardColors(): Observable<string[]> {
+    return this.http.get<string[]>(`${this.apiUrl}/colors`);
+  }
   getScanErrors(): Observable<LibraryCard[]> {
     return this.http.get<LibraryCard[]>(`${this.apiUrl}/errors`);
   }

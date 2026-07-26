@@ -14,11 +14,14 @@ import { LibraryCard } from '../../interfaces/LibraryCard';
 })
 export class Library {
   libraryState$!: Observable<LibraryCard[]>;
+  cardColors$!: Observable<string[]>;
   searchBy = 'code';
   searchTerm = '';
+  selectedColor = '';
   private refresh$ = new Subject<void>();
   private searchBy$ = new BehaviorSubject<string>(this.searchBy);
   private searchTerm$ = new BehaviorSubject<string>(this.searchTerm);
+  private selectedColor$ = new BehaviorSubject<string>(this.selectedColor);
 
   constructor(private libraryService: LibraryService) {
     const library$ = this.refresh$.pipe(
@@ -33,14 +36,34 @@ export class Library {
       )
     );
 
-    this.libraryState$ = combineLatest([library$, this.searchBy$, this.searchTerm$]).pipe(
-      map(([cards, searchBy, searchTerm]) => {
+    this.cardColors$ = this.refresh$.pipe(
+      startWith(void 0),
+      switchMap(() =>
+        this.libraryService.getCardColors().pipe(
+          catchError((err) => {
+            console.error('Erro ao carregar cores da biblioteca', err);
+            return of([]);
+          })
+        )
+      )
+    );
+
+    this.libraryState$ = combineLatest([library$, this.searchBy$, this.searchTerm$, this.selectedColor$]).pipe(
+      map(([cards, searchBy, searchTerm, selectedColor]) => {
         const term = searchTerm?.trim().toLowerCase();
-        if (!term) {
-          return cards;
+        let filteredCards = cards;
+
+        if (selectedColor) {
+          filteredCards = filteredCards.filter((card) =>
+            (card.card_color || '').toLowerCase() === selectedColor.toLowerCase()
+          );
         }
 
-        return cards.filter((card) => {
+        if (!term) {
+          return filteredCards;
+        }
+
+        return filteredCards.filter((card) => {
           const value =
             searchBy === 'name'
               ? card.card_name
@@ -54,6 +77,11 @@ export class Library {
   search() {
     this.searchBy$.next(this.searchBy);
     this.searchTerm$.next(this.searchTerm);
+  }
+
+  onColorChange(color: string) {
+    this.selectedColor = color;
+    this.selectedColor$.next(this.selectedColor);
   }
 
   addCard(code: string) {

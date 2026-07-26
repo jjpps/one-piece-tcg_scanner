@@ -2,7 +2,6 @@ import { Component, inject } from '@angular/core';
 import { NgIf } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DeckService } from '../../services/deck.service';
-import { DeckCards } from '../../interfaces/DeckCards';
 import { Router } from '@angular/router';
 
 @Component({
@@ -12,7 +11,7 @@ import { Router } from '@angular/router';
   styleUrl: './deck-building.css',
 })
 export class DeckBuilding {
-  jsonText = '';
+  listText = '';
   jsonError: string | null = null;
   jsonResult: string | null = null;
   loading = false;
@@ -20,45 +19,35 @@ export class DeckBuilding {
   private deckService = inject(DeckService);
   private router = inject(Router);
 
-  onFormatJson(): void {
-    this.jsonError = null;
-    try {
-      const parsed = JSON.parse(this.jsonText);
-      this.jsonText = JSON.stringify(parsed, null, 2);
-      this.jsonResult = 'JSON formatado com sucesso.';
-    } catch (error: unknown) {
-      this.jsonError = 'Erro ao formatar JSON: ' + (error instanceof Error ? error.message : String(error));
-      this.jsonResult = null;
-    }
-  }
-
   async onSubmit(): Promise<void> {
     this.jsonError = null;
     this.jsonResult = null;
 
-    if (!this.jsonText || !this.jsonText.trim()) {
-      this.jsonError = 'Informe um JSON antes de enviar.';
-      return;
-    }
-
-    let payload;
-    try {
-      payload = JSON.parse(this.jsonText);
-    } catch (error: unknown) {
-      this.jsonError = 'JSON inválido, corrija e tente novamente.';
+    if (!this.listText || !this.listText.trim()) {
+      this.jsonError = 'Informe a lista de cartas antes de enviar.';
       return;
     }
 
     this.loading = true;
 
     try {
+      const lines = this.listText
+        .split(/\n|\r\n/)
+        .map((line) => line.trim())
+        .filter(Boolean);
+
+      const payload = {
+        deckName: 'Deck',
+        cards: lines,
+      };
+
       const response: any = await this.deckService.uploadDeck(payload).toPromise();
-      if(response && response.cards && response.cards.length > 0) {
+      if (response && response.cards && response.cards.length > 0) {
         this.jsonResult = `Deck enviado com sucesso! ${response.cards.length} cartas processadas.`;
-        // Navegar para deck-output com os dados
         this.router.navigate(['/deck-output'], { state: { response } });
-      }     
-      this.loading = false;
+      } else {
+        this.jsonError = 'Nenhuma carta válida foi encontrada para processar.';
+      }
     } catch (error: unknown) {
       this.jsonError = 'Falha no envio do deck: ' + (error instanceof Error ? error.message : String(error));
     } finally {

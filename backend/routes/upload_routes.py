@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify
 import os
 import processor
-from services.upload_service import check_deck_cards
+from services.upload_service import build_deck_payload_from_text, check_deck_cards
 
 upload_bp = Blueprint('upload', __name__)
 
@@ -52,9 +52,35 @@ def upload_images():
 def upload_deck():    
     try:
         data = request.get_json()
-        deckName = data.get('metadata', {}).get('name')
-        cards = data.get('deck',{}).get('Main Deck',[])
-        anyCardOwned, processedDeckCards = check_deck_cards(cards)
+        if isinstance(data, list):
+            payload = build_deck_payload_from_text('\n'.join(str(item) for item in data))
+            deckName = payload.get('deckName', 'Deck')
+            cards = payload.get('cards', [])
+        elif isinstance(data, dict) and 'cards' in data and isinstance(data.get('cards'), list):
+            deckName = data.get('deckName', 'Deck')
+            cards = data.get('cards', [])
+        else:
+            deckName = data.get('metadata', {}).get('name')
+            cards = data.get('deck',{}).get('Main Deck',[])
+
+        if isinstance(cards, list) and cards and isinstance(cards[0], str):
+            payload = build_deck_payload_from_text('\n'.join(str(item) for item in cards))
+            cards = payload.get('cards', [])
+
+        if not cards:
+            return jsonify({"error": "Nenhuma carta válida foi normalizada pela LLM"}), 400
+
+        normalized_cards = []
+        for card in cards:
+            if isinstance(card, dict):
+                normalized_cards.append({
+                    'code': card.get('code') or card.get('id') or '',
+                    'quantity': card.get('quantity') or card.get('count') or card.get('quantityRequired') or 1
+                })
+            else:
+                normalized_cards.append({'code': str(card), 'quantity': 1})
+
+        anyCardOwned, processedDeckCards = check_deck_cards(normalized_cards)
         if anyCardOwned:
             return jsonify({
                 "deckName": deckName,
