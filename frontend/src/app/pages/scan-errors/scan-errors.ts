@@ -102,7 +102,16 @@ export class ScanErrors {
     }
 
     this.applying = false;
-    alert(`Operação finalizada: ${successCount} atualizadas, ${failCount} falharam.`);
+    //alert(`Operação finalizada: ${successCount} atualizadas, ${failCount} falharam.`);
+    // limpar input global e seleção
+    this.globalCode = '';
+    this.selectedIds.clear();
+    // limpar inputs individuais relacionados às cartas processadas
+    for (const id of ids) {
+      const key = String(id);
+      this.cardInputs[key] = '';
+    }
+    // requisitar refresh da lista (recarrega os dados)
     this.refresh$.next();
   }
 
