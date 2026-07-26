@@ -1,12 +1,14 @@
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { Component } from '@angular/core';
 import { LibraryService } from '../../services/library.service';
 import { catchError, Observable, of, startWith, Subject, switchMap } from 'rxjs';
+import { lastValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-scan-errors',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './scan-errors.html',
   styleUrls: ['./scan-errors.css'],
 })
@@ -21,6 +23,11 @@ export class ScanErrors {
   zoomImageSrc: string | null = null;
   zoomStyle: { [klass: string]: string } = {};
   zoomScale = 3;
+  selectedIds = new Set<string | number>();
+  cardStates: { [id: string]: { state: 'idle' | 'pending' | 'success' | 'error'; message?: string } } = {};
+  globalCode = '';
+  applying = false;
+  cardInputs: { [id: string]: string } = {};
 
   constructor(private libraryService: LibraryService) {
 
@@ -36,6 +43,95 @@ export class ScanErrors {
       )
     );
   }
+
+  toggleSelection(cardId: string | number): void {
+    const key = String(cardId);
+    if (this.selectedIds.has(cardId)) {
+      this.selectedIds.delete(cardId);
+      delete this.cardStates[key];
+    } else {
+      this.selectedIds.add(cardId);
+      this.cardStates[key] = { state: 'idle' };
+    }
+  }
+
+  onKeyToggle(event: KeyboardEvent, cardId: string | number): void {
+    const code = event.code || '';
+    if (code === 'Space' || code === 'Enter' || code === 'Spacebar') {
+      event.preventDefault();
+      this.toggleSelection(cardId);
+    }
+  }
+
+  getSelectedCount(): number {
+    return this.selectedIds.size;
+  }
+
+  getSelectedIds(): Array<string | number> {
+    return Array.from(this.selectedIds);
+  }
+
+  async applyCodeToSelected(): Promise<void> {
+    const code = (this.globalCode || '').trim();
+    if (!code) {
+      alert('Por favor, digite o código da carta');
+      return;
+    }
+
+    if (this.selectedIds.size === 0) {
+      return;
+    }
+
+    this.applying = true;
+    const ids = this.getSelectedIds();
+    let successCount = 0;
+    let failCount = 0;
+
+    for (const id of ids) {
+      const key = String(id);
+      this.cardStates[key] = { state: 'pending' };
+      try {
+        await lastValueFrom(this.libraryService.saveCardManually(String(id), code));
+        this.cardStates[key] = { state: 'success' };
+        successCount++;
+      } catch (err: any) {
+        console.error('Erro ao atualizar carta', id, err);
+        this.cardStates[key] = { state: 'error', message: err?.message || 'Erro desconhecido' };
+        failCount++;
+      }
+    }
+
+    this.applying = false;
+    //alert(`Operação finalizada: ${successCount} atualizadas, ${failCount} falharam.`);
+    // limpar input global e seleção
+    this.globalCode = '';
+    this.selectedIds.clear();
+    // limpar inputs individuais relacionados às cartas processadas
+    for (const id of ids) {
+      const key = String(id);
+      this.cardInputs[key] = '';
+    }
+    // requisitar refresh da lista (recarrega os dados)
+    this.refresh$.next();
+  }
+
+  async retryCard(cardId: string | number): Promise<void> {
+    const key = String(cardId);
+    const code = (this.globalCode || '').trim();
+    if (!code) {
+      alert('Por favor, digite o código antes de re-tentar');
+      return;
+    }
+    this.cardStates[key] = { state: 'pending' };
+    try {
+      await lastValueFrom(this.libraryService.saveCardManually(String(cardId), code));
+      this.cardStates[key] = { state: 'success' };
+    } catch (err: any) {
+      this.cardStates[key] = { state: 'error', message: err?.message || 'Erro desconhecido' };
+    }
+  }
+
+  // saveCard already exists below; ensure it uses cardInputs when provided
 
   onImageMouseEnter(imageUrl: string, cardId: string | number, event: MouseEvent): void {
     this.activeZoomCardId = cardId;

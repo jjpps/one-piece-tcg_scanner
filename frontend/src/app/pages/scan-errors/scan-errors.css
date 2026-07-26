@@ -3,6 +3,80 @@
   overflow: hidden;
 }
 
+.selectable-card {
+  position: relative;
+}
+
+.selectable-card .select-overlay {
+  position: absolute;
+  top: -6px;
+  left: -6px;
+  z-index: 6;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255,255,255,0.6);
+  border-radius: 50%;
+  padding: 0;
+  cursor: pointer;
+  transition: transform 120ms ease, background 120ms ease, box-shadow 120ms ease;
+}
+
+.selectable-card.selected {
+  box-shadow: 0 0 0 3px rgba(13,110,253,0.18);
+}
+
+.select-overlay:hover {
+  background: rgba(0,0,0,0.25);
+  transform: scale(1.03);
+}
+
+.selectable-card.selected .select-overlay {
+  background: rgba(13,110,253,0.16);
+  box-shadow: 0 0 0 3px rgba(13,110,253,0.08) inset;
+}
+
+.select-overlay input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  -webkit-appearance: none;
+  appearance: none;
+  border: 2px solid rgba(0,0,0,0.5);
+  border-radius: 3px;
+  background: transparent;
+}
+
+.selectable-card.selected .select-overlay input[type="checkbox"] {
+  background: #0d6efd;
+  border-color: #0d6efd;
+}
+
+.select-overlay input[type="checkbox"]:checked::after {
+  content: '';
+}
+
+.global-panel {
+  position: sticky;
+  top: 0;
+  background: #ffffff;
+  padding: 0.5rem 0;
+  z-index: 20;
+}
+
+.card-body {
+  padding: 0.75rem;
+}
+
+.image-zoom-container img {
+  display: block;
+  width: 100%;
+  height: 260px;
+  object-fit: cover;
+}
+
 .image-zoom-container img {
   display: block;
   width: 100%;
@@ -33,4 +107,8 @@
     top: 0.5rem;
     right: 0.5rem;
   }
+}
+
+.status-row .badge {
+  font-size: 0.75rem;
 }
