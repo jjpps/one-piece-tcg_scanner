@@ -1,13 +1,14 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, interval, Subscription } from 'rxjs';
+import { API_BASE_URL } from './api-url';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ProcessingService {
 
-  private statusUrl = 'http://localhost:5000/api/status';
+  private statusUrl = `${API_BASE_URL}/status`;
 
   private pollingSub?: Subscription;
 

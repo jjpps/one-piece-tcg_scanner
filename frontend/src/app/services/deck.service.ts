@@ -2,12 +2,13 @@ import { Injectable } from "@angular/core";
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { DeckCards } from "../interfaces/DeckCards";
+import { API_BASE_URL } from './api-url';
 
 @Injectable({
   providedIn: 'root',
 })
 export class DeckService {
-    private apiUrl = 'http://localhost:5000/api/upload/deck';
+    private apiUrl = `${API_BASE_URL}/upload/deck`;
 
     constructor(private http: HttpClient) {}
 

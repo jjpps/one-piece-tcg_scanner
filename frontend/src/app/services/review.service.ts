@@ -3,12 +3,13 @@ import { Injectable } from "@angular/core";
 import { BehaviorSubject, Observable } from "rxjs";
 import { LibraryCard } from "../interfaces/LibraryCard";
 import { LocalCard } from "../interfaces/LocalCard";
+import { API_BASE_URL } from './api-url';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ReviewService {
-  private apiUrl = 'http://localhost:5000/api/reviews';
+  private apiUrl = `${API_BASE_URL}/reviews`;
   private cardsSubject = new BehaviorSubject<LocalCard[]>([]);
   public cards$ = this.cardsSubject.asObservable();
 

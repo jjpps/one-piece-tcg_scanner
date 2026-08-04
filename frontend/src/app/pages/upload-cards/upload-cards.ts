@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { ProcessingService } from '../../services/processing.service';
+import { API_BASE_URL } from '../../services/api-url';
 import { FormsModule } from '@angular/forms';
 @Component({
   selector: 'app-upload-cards',
@@ -11,7 +12,7 @@ import { FormsModule } from '@angular/forms';
 export class UploadCards {
   selectedFiles: File[] = [];
   loading = false;
-  private apiUrl = 'http://localhost:5000/api/upload';
+  private apiUrl = `${API_BASE_URL}/upload`;
   constructor(private http: HttpClient,
     private processingService: ProcessingService
   ) {}
