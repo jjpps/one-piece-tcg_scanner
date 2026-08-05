@@ -8,20 +8,15 @@ describe('Library', () => {
   let component: Library;
 
   beforeEach(async () => {
-    const libraryServiceSpy = jasmine.createSpyObj('LibraryService', [
-      'getLibrary',
-      'getCardColors',
-      'addCardQuantity',
-      'removeCardQuantity',
-    ]);
-
-    libraryServiceSpy.getLibrary.and.returnValue(of([
-      { code: 'AAA', image_url: '', card_name: 'Alpha', quantity: 1, card_color: 'Blue' },
-      { code: 'BBB', image_url: '', card_name: 'Beta', quantity: 1, card_color: 'Black' },
-    ] as any));
-    libraryServiceSpy.getCardColors.and.returnValue(of(['Blue', 'Black']));
-    libraryServiceSpy.addCardQuantity.and.returnValue(of({}));
-    libraryServiceSpy.removeCardQuantity.and.returnValue(of({}));
+    const libraryServiceSpy = {
+      getLibrary: vi.fn().mockReturnValue(of([
+        { code: 'AAA', image_url: '', card_name: 'Alpha', quantity: 1, card_color: 'Blue' },
+        { code: 'BBB', image_url: '', card_name: 'Beta', quantity: 1, card_color: 'Black' },
+      ] as any)),
+      getCardColors: vi.fn().mockReturnValue(of(['Blue', 'Black'])),
+      addCardQuantity: vi.fn().mockReturnValue(of({})),
+      removeCardQuantity: vi.fn().mockReturnValue(of({})),
+    };
 
     await TestBed.configureTestingModule({
       imports: [Library],
@@ -33,12 +28,14 @@ describe('Library', () => {
     fixture.detectChanges();
   });
 
-  it('should filter cards by selected color', (done) => {
+  it('should filter cards by selected color', () => {
     component.onColorChange('Blue');
 
+    let result: any[] = [];
     component.libraryState$.subscribe((cards) => {
-      expect(cards.map((card) => card.code)).toEqual(['AAA']);
-      done();
+      result = cards;
     });
+
+    expect(result.map((card) => card.code)).toEqual(['AAA']);
   });
 });

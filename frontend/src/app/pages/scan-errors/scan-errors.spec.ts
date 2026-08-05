@@ -48,7 +48,7 @@ describe('ScanErrors', () => {
 
     component.onImageMouseEnter(imageUrl, 'card-1', event);
 
-    expect(component.zoomActive).toBeTrue();
+    expect(component.zoomActive).toBe(true);
     expect(component.activeZoomCardId).toBe('card-1');
     expect(component.zoomImageSrc).toBe(imageUrl);
     expect(component.zoomStyle['background-image']).toContain(imageUrl);
@@ -73,7 +73,7 @@ describe('ScanErrors', () => {
 
     component.onImageMouseLeave();
 
-    expect(component.zoomActive).toBeFalse();
+    expect(component.zoomActive).toBe(false);
     expect(component.zoomImageSrc).toBeNull();
     expect(component.zoomStyle).toEqual({});
   });
