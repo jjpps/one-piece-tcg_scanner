@@ -72,44 +72,44 @@ describe('InventoryAudit', () => {
 
   it('shows the landing view with no active session on init', () => {
     expect(inventoryServiceSpy.getCurrentSession).toHaveBeenCalled();
-    expect(component.view).toBe('landing');
-    expect(component.session).toBeNull();
+    expect(component.view()).toBe('landing');
+    expect(component.session()).toBeNull();
   });
 
   it('loads items for a color and switches to the review view', () => {
-    component.session = { ...openSession };
+    component.session.set({ ...openSession });
     component.selectColor({ card_color: 'Red', label: 'Red', total: 5, reviewed: 1, pending: 4 });
 
-    expect(component.view).toBe('review');
+    expect(component.view()).toBe('review');
     expect(inventoryServiceSpy.getItems).toHaveBeenCalledWith(
       1,
       expect.objectContaining({ color: 'Red', status: 'pending' })
     );
-    expect(component.items.length).toBe(1);
+    expect(component.items().length).toBe(1);
   });
 
   it('marks a card as unchanged and removes it from the pending list', () => {
-    component.session = { ...openSession };
-    component.selectedColor = { card_color: 'Red', label: 'Red', total: 5, reviewed: 1, pending: 4 };
-    component.items = [item];
+    component.session.set({ ...openSession });
+    component.selectedColor.set({ card_color: 'Red', label: 'Red', total: 5, reviewed: 1, pending: 4 });
+    component.items.set([item]);
 
     component.markUnchanged(item);
 
     expect(inventoryServiceSpy.reviewItem).toHaveBeenCalledWith(1, 'OP01-001', false);
-    expect(component.items.length).toBe(0);
-    expect(component.session.reviewed_count).toBe(3);
-    expect(component.session.pending_count).toBe(7);
+    expect(component.items().length).toBe(0);
+    expect(component.session()?.reviewed_count).toBe(3);
+    expect(component.session()?.pending_count).toBe(7);
   });
 
   it('rejects an invalid counted quantity without calling reviewItem', () => {
-    component.session = { ...openSession };
-    component.selectedColor = { card_color: 'Red', label: 'Red', total: 5, reviewed: 1, pending: 4 };
-    component.editingCode = item.code;
-    component.editingQuantity = -1;
+    component.session.set({ ...openSession });
+    component.selectedColor.set({ card_color: 'Red', label: 'Red', total: 5, reviewed: 1, pending: 4 });
+    component.editingCode.set(item.code);
+    component.editingQuantity.set(-1);
 
     component.confirmChangedQuantity(item);
 
     expect(inventoryServiceSpy.reviewItem).not.toHaveBeenCalled();
-    expect(component.errorMessage).toContain('quantidade válida');
+    expect(component.errorMessage()).toContain('quantidade válida');
   });
 });
