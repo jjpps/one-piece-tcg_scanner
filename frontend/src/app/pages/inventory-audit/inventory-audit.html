@@ -1,0 +1,242 @@
+<br />
+<hr />
+
+<div class="container">
+  <h3 class="mb-3">Auditoria de Inventário</h3>
+
+  <div class="alert alert-danger" *ngIf="errorMessage()" role="alert">
+    {{ errorMessage() }}
+    <button type="button" class="btn-close float-end" (click)="clearError()"></button>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="view() === 'loading'" class="text-center mt-4">Carregando...</div>
+
+  <!-- Landing -->
+  <div *ngIf="view() === 'landing'">
+    <ng-container *ngIf="session()?.status === 'open'; else noSession">
+      <div class="card p-4 mb-3" *ngIf="session() as s">
+        <p class="mb-2">Auditoria em andamento: {{ s.reviewed_count }}/{{ s.total_items }} revisadas.</p>
+        <div class="d-flex gap-2">
+          <button type="button" class="btn btn-success" (click)="continueSession()">Continuar auditoria</button>
+          <button type="button" class="btn btn-outline-danger" (click)="startNewSession()">Iniciar nova auditoria</button>
+        </div>
+      </div>
+    </ng-container>
+    <ng-template #noSession>
+      <div class="card p-4 mb-3">
+        <p class="mb-2">Nenhuma auditoria em andamento.</p>
+        <button type="button" class="btn btn-success" (click)="startNewSession()">Iniciar auditoria</button>
+      </div>
+    </ng-template>
+  </div>
+
+  <!-- Colors -->
+  <div *ngIf="view() === 'colors'">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <div *ngIf="session() as s">
+        Progresso geral: {{ s.reviewed_count }}/{{ s.total_items }} revisadas
+      </div>
+      <button type="button" class="btn btn-primary" (click)="openDiffReview()">Revisar e aplicar</button>
+    </div>
+
+    <button type="button" class="btn btn-outline-success mb-3" (click)="openAddCard()">
+      + Adicionar carta não cadastrada
+    </button>
+
+    <p *ngIf="colors().length === 0" class="text-center">Nenhuma cor encontrada nesta auditoria.</p>
+
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
+      <div class="col" *ngFor="let color of colors()">
+        <button type="button" class="btn btn-outline-dark w-100 h-100 p-3" (click)="selectColor(color)">
+          <strong>{{ color.label }}</strong>
+          <br />
+          {{ color.reviewed }}/{{ color.total }} revisadas
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Review grid -->
+  <div *ngIf="view() === 'review' && selectedColor() as sc">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <button type="button" class="btn btn-outline-secondary" (click)="backToColors()">&laquo; Voltar às cores</button>
+      <h5 class="mb-0">{{ sc.label }}</h5>
+      <button type="button" class="btn btn-primary" (click)="openDiffReview()">Revisar e aplicar</button>
+    </div>
+
+    <div class="input-group mb-3">
+      <input
+        class="form-control"
+        type="text"
+        placeholder="Buscar por código ou nome"
+        [ngModel]="searchTerm()"
+        (ngModelChange)="onSearchTermChange($event)"
+        (keydown.enter)="onSearch()"
+      />
+      <button class="btn btn-outline-secondary" type="button" (click)="onSearch()">
+        <i class="bi bi-search"></i> Buscar
+      </button>
+      <button class="btn btn-outline-secondary" type="button" (click)="toggleShowReviewed()">
+        {{ showReviewed() ? 'Mostrar pendentes' : 'Mostrar já revisadas' }}
+      </button>
+    </div>
+
+    <p *ngIf="items().length === 0" class="text-center">
+      {{ showReviewed() ? 'Nenhuma carta revisada ainda nesta cor.' : 'Nenhuma carta pendente nesta cor.' }}
+    </p>
+
+    <div class="list-group mb-3">
+      <div class="list-group-item d-flex align-items-center gap-3" *ngFor="let item of items()">
+        <img
+          [src]="item.card_image_url"
+          [alt]="item.card_name"
+          class="item-thumb"
+          role="button"
+          (click)="openImageZoom(item.card_image_url, item.card_name)"
+        />
+        <div class="flex-grow-1">
+          <div><strong>{{ item.card_name }}</strong> — {{ item.code }}</div>
+          <div>Quantidade no sistema: {{ item.system_quantity }}</div>
+          <div *ngIf="item.reviewed">
+            <span class="badge text-bg-secondary" *ngIf="!item.changed">Não mudou</span>
+            <span class="badge text-bg-success" *ngIf="item.changed">Mudou para {{ item.counted_quantity }}</span>
+          </div>
+        </div>
+
+        <ng-container *ngIf="editingCode() !== item.code; else editingRow">
+          <button type="button" class="btn btn-outline-secondary" (click)="markUnchanged(item)">Não mudou</button>
+          <button type="button" class="btn btn-outline-primary" (click)="openEditQuantity(item)">Mudou</button>
+        </ng-container>
+        <ng-template #editingRow>
+          <input
+            type="number"
+            class="form-control"
+            style="width: 90px;"
+            min="0"
+            [ngModel]="editingQuantity()"
+            (ngModelChange)="onEditingQuantityChange($event)"
+          />
+          <button type="button" class="btn btn-success" (click)="confirmChangedQuantity(item)">Confirmar</button>
+          <button type="button" class="btn btn-outline-secondary" (click)="cancelEditQuantity()">Cancelar</button>
+        </ng-template>
+      </div>
+    </div>
+
+    <div class="d-flex justify-content-between" *ngIf="itemsTotal() > 0">
+      <button type="button" class="btn btn-outline-secondary" [disabled]="page() <= 1" (click)="prevPage()">Anterior</button>
+      <span>Página {{ page() }} ({{ itemsTotal() }} no total)</span>
+      <button type="button" class="btn btn-outline-secondary" [disabled]="page() * 50 >= itemsTotal()" (click)="nextPage()">Próxima</button>
+    </div>
+  </div>
+
+  <!-- Add new card -->
+  <div *ngIf="view() === 'add-card'">
+    <button type="button" class="btn btn-outline-secondary mb-3" (click)="backToColors()">&laquo; Voltar às cores</button>
+
+    <div class="card p-4">
+      <h5>Adicionar carta não cadastrada</h5>
+      <div class="input-group my-3">
+        <input
+          class="form-control"
+          type="text"
+          placeholder="Código da carta (ex: OP01-016)"
+          [ngModel]="newCardCode()"
+          (ngModelChange)="onNewCardCodeChange($event)"
+          (keydown.enter)="lookupNewCard()"
+        />
+        <button class="btn btn-outline-secondary" type="button" (click)="lookupNewCard()" [disabled]="newCardLoading()">
+          Buscar
+        </button>
+      </div>
+
+      <div class="alert alert-warning" *ngIf="newCardError()">{{ newCardError() }}</div>
+
+      <div class="d-flex align-items-center gap-3 mb-3" *ngIf="newCardPreview() as preview">
+        <img
+          [src]="preview.card_image"
+          [alt]="preview.card_name"
+          class="preview-thumb"
+          role="button"
+          (click)="openImageZoom(preview.card_image, preview.card_name)"
+        />
+        <div>
+          <div><strong>{{ preview.card_name }}</strong></div>
+          <div>Cor: {{ preview.card_color }}</div>
+        </div>
+      </div>
+
+      <div class="input-group mb-3" *ngIf="newCardPreview()">
+        <span class="input-group-text">Quantidade contada</span>
+        <input
+          type="number"
+          class="form-control"
+          min="1"
+          [ngModel]="newCardQuantity()"
+          (ngModelChange)="onNewCardQuantityChange($event)"
+        />
+        <button class="btn btn-success" type="button" (click)="confirmAddNewCard()">Adicionar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Diff review -->
+  <div *ngIf="view() === 'diff' && diff() as d">
+    <button type="button" class="btn btn-outline-secondary mb-3" (click)="backToColors()">&laquo; Voltar às cores</button>
+
+    <div class="alert alert-warning" *ngIf="d.pending_count > 0">
+      {{ d.pending_count }} carta(s) ainda não foram revisadas nesta sessão. Elas manterão a quantidade atual.
+    </div>
+
+    <h5>Quantidades alteradas ({{ d.updates.length }})</h5>
+    <table class="table table-sm" *ngIf="d.updates.length > 0">
+      <thead><tr><th>Código</th><th>Nome</th><th>Atual</th><th>Nova</th></tr></thead>
+      <tbody>
+        <tr *ngFor="let u of d.updates">
+          <td>{{ u.code }}</td>
+          <td>{{ u.card_name }}</td>
+          <td>{{ u.system_quantity }}</td>
+          <td>{{ u.counted_quantity }}</td>
+        </tr>
+      </tbody>
+    </table>
+    <p *ngIf="d.updates.length === 0" class="text-muted">Nenhuma quantidade alterada.</p>
+
+    <h5>Cartas novas ({{ d.new_cards.length }})</h5>
+    <table class="table table-sm" *ngIf="d.new_cards.length > 0">
+      <thead><tr><th>Código</th><th>Nome</th><th>Quantidade</th></tr></thead>
+      <tbody>
+        <tr *ngFor="let n of d.new_cards">
+          <td>{{ n.code }}</td>
+          <td>{{ n.card_name }}</td>
+          <td>{{ n.counted_quantity }}</td>
+        </tr>
+      </tbody>
+    </table>
+    <p *ngIf="d.new_cards.length === 0" class="text-muted">Nenhuma carta nova.</p>
+
+    <button type="button" class="btn btn-primary mt-3" (click)="confirmApply()">Confirmar e aplicar</button>
+  </div>
+
+  <!-- Done -->
+  <div *ngIf="view() === 'done' && applyResult() as r" class="card p-4 text-center">
+    <p>Auditoria aplicada com sucesso: {{ r.updated }} atualizada(s), {{ r.added }} nova(s) adicionada(s).</p>
+    <p *ngIf="r.left_pending > 0" class="text-muted">
+      {{ r.left_pending }} carta(s) ficaram pendentes — inicie uma nova auditoria para revisá-las.
+    </p>
+    <button type="button" class="btn btn-primary" (click)="goToLibrary()">Ir para a Library</button>
+  </div>
+</div>
+
+<!-- Zoom da imagem da carta -->
+<div class="image-zoom-backdrop" *ngIf="zoomImage() as z" (click)="closeImageZoom()">
+  <div class="image-zoom-content" (click)="$event.stopPropagation()">
+    <button
+      type="button"
+      class="btn-close btn-close-white image-zoom-close"
+      (click)="closeImageZoom()"
+      aria-label="Fechar"
+    ></button>
+    <img [src]="z.url" [alt]="z.alt" class="image-zoom-img" />
+  </div>
+</div>
