@@ -1,12 +1,19 @@
 import threading
 import os
 import uuid
+from pathlib import Path
 from dtos.local_card_dto import LocalCard
 from image_tools import ocr_processor
 from services.tcg_api_client import get_card_by_code
 from repositories.cards_repository import card_exists
 import json
 ERROR_IMAGES_FOLDER = 'images_with_errors'
+
+
+def _descartar_recorte(cropped_path):
+    """Remove o recorte gerado para uma carta que não vai para a tela de review."""
+    if cropped_path and Path(cropped_path).exists():
+        Path(cropped_path).unlink()
 processing_status = {
     "total": 0,
     "current": 0,
@@ -46,27 +53,29 @@ def start_processing(folder_path):
             processing_status["processing"] = True
         localCards = []
         for index, file_path in enumerate(files, start=1):
-            code, ocr_text = ocr_processor.process_image(file_path)
+            code, ocr_text, cropped_path = ocr_processor.process_image(file_path)
 
             if code:
                 if card_exists(code):
                     card = get_card_by_code(code)
-                    localCards.append(LocalCard(file_path,card.card_image,card.card_name,code,True))                    
+                    localCards.append(LocalCard(file_path,card.card_image,card.card_name,code,True,cropped_path or ""))
                 else:
                     card = get_card_by_code(code)
                     if card:
-                        localCards.append(LocalCard(file_path,card.card_image,card.card_name,code,False))
-                    else:                        
+                        localCards.append(LocalCard(file_path,card.card_image,card.card_name,code,False,cropped_path or ""))
+                    else:
+                        _descartar_recorte(cropped_path)
                         file_ext = os.path.splitext(file_path)[1]
                         unique_filename = f"{uuid.uuid4()}{file_ext}"
-                        os.rename(file_path, os.path.join(ERROR_IMAGES_FOLDER, unique_filename))                
+                        os.rename(file_path, os.path.join(ERROR_IMAGES_FOLDER, unique_filename))
             else:
+                _descartar_recorte(cropped_path)
                 file_ext = os.path.splitext(file_path)[1]
                 unique_filename = f"{uuid.uuid4()}{file_ext}"
                 os.rename(file_path, os.path.join(ERROR_IMAGES_FOLDER, unique_filename))
                 with status_lock:
                     processing_status["anyErrors"] = True
-                
+
 
             with status_lock:
                 processing_status["current"] = index

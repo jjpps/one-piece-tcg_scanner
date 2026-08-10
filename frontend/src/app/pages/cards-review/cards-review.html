@@ -10,12 +10,12 @@
         <div class="row" *ngFor="let card of cards">
           <br/>
          
-          <div class="col">            
-            <img [src]="card.local_image_url" alt="{{ card.card_name }}" class="w-50 rounded d-block"/>
+          <div class="col">
+            <img-comparison-slider class="comparison-slider rounded">
+              <img slot="first" [src]="card.cropped_image_url" alt="Foto da carta - {{ card.card_name }}" />
+              <img slot="second" [src]="card.card_image" alt="Arte oficial - {{ card.card_name }}" />
+            </img-comparison-slider>
           </div>
-           <div class="col">            
-             <img [src]="card.card_image" alt="{{ card.card_name }}" class="w-50 rounded d-block"/>
-          </div>     
           <div class="col">
             <span class="h5">{{ card.card_set_id }} - {{ card.card_name }}</span><br/>
             <br/>

@@ -1,10 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, CUSTOM_ELEMENTS_SCHEMA, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Observable, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { ReviewService } from '../../services/review.service';
-import { LibraryCard } from '../../interfaces/LibraryCard';
 import { LocalCard } from '../../interfaces/LocalCard';
+import 'img-comparison-slider';
 
 @Component({
   selector: 'app-cards-review',
@@ -12,6 +12,7 @@ import { LocalCard } from '../../interfaces/LocalCard';
   imports: [CommonModule],
   templateUrl: './cards-review.html',
   styleUrl: './cards-review.css',
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class CardsReview implements OnInit {
 
