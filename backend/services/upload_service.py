@@ -4,6 +4,7 @@ from typing import Any
 
 import ollama
 
+from card_id_pattern import CARD_ID_PATTERN
 from dtos.card_dto import Card
 from dtos.deck_card_dto import DeckCard
 from repositories.cards_repository import get_card_data_by_code
@@ -21,12 +22,12 @@ def _parse_plain_cards(raw_list: list[str]) -> list[dict[str, Any]]:
         normalized = re.sub(r'^(\d+)\s*(?:x|X)\s*', r'\1 ', normalized).strip()
         normalized = re.sub(r'^(?:x|X)\s*', '', normalized).strip()
 
-        code_match = re.search(r'([A-Z]{2,4}\d{2}-\d{3}|P-\d{3})', normalized, re.IGNORECASE)
+        code_match = re.search(f'({CARD_ID_PATTERN})', normalized, re.IGNORECASE)
         if not code_match:
             continue
 
         code = code_match.group(1).upper()
-        code = re.sub(r'^X(?=[A-Z]{2,4}\d{2}-\d{3}$|P-\d{3}$)', '', code)
+        code = re.sub(rf'^X(?={CARD_ID_PATTERN}$)', '', code)
         quantity = 1
 
         quantity_prefix = re.match(r'^(\d+)\s*(?:x|X)?\s*', normalized)
@@ -81,8 +82,8 @@ Convert the provided raw entries into a single JSON object with this exact schem
 Rules:
 - Each input line is one card entry.
 - If a line starts with a number followed by whitespace or 'x', that number is the quantity.
-- If a line contains a card code like OP16-080, EB04-058, ST03-017 or PRB02-012, that code is the card code.
-- A card code can also be just the letter P followed by a dash and 3 digits, like P-024, with no set number.
+- If a line contains a card code like OP16-080, EB04-058, ST03-017 or PRB02-001, that code is the card code.
+- A card code can also be just the letter P followed by a dash and 3 digits, like P-041, with no set number.
 - If a quantity is missing, use 1.
 - Examples:
   - '2 EB03-021' -> {{"deckName": "Deck", "cards": [{{"code": "EB03-021", "quantity": 2}}]}}
@@ -90,8 +91,8 @@ Rules:
   - '4xOP09-093' -> {{"deckName": "Deck", "cards": [{{"code": "OP09-093", "quantity": 4}}]}}
   - 'OP16-080' -> {{"deckName": "Deck", "cards": [{{"code": "OP16-080", "quantity": 1}}]}}
   - '1 ST03-017' -> {{"deckName": "Deck", "cards": [{{"code": "ST03-017", "quantity": 1}}]}}
-  - '3 P-024' -> {{"deckName": "Deck", "cards": [{{"code": "P-024", "quantity": 3}}]}}
-  - '1 PRB02-012' -> {{"deckName": "Deck", "cards": [{{"code": "PRB02-012", "quantity": 1}}]}}
+  - '3xPRB02-001' -> {{"deckName": "Deck", "cards": [{{"code": "PRB02-001", "quantity": 3}}]}}
+  - '1 P-041' -> {{"deckName": "Deck", "cards": [{{"code": "P-041", "quantity": 1}}]}}
 - Ignore any text that is not a card entry.
 - Do not add explanations, markdown, code fences, comments, or Python syntax.
 - Return ONLY one valid JSON object that can be parsed by Python json.loads().
@@ -126,7 +127,7 @@ Input entries:
             if not isinstance(item, dict):
                 continue
             code = str(item.get('code', '')).strip().upper()
-            code = re.sub(r'^X(?=[A-Z]{2,4}\d{2}-\d{3}$|P-\d{3}$)', '', code)
+            code = re.sub(rf'^X(?={CARD_ID_PATTERN}$)', '', code)
             quantity = item.get('quantity', 1)
             if not code:
                 continue

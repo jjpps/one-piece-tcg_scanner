@@ -1,14 +1,18 @@
 import cv2
 import re
 import pytesseract
+from pathlib import Path
 from image_tools.llm_processor import _extrair_id_via_llm
+from card_id_pattern import CARD_ID_PATTERN
 import sys
 
 ID_REGION = {'y1': 0.85, 'y2': 0.97, 'x1': 0.55, 'x2': 0.92}
- 
-# Padrão do ID das cartas One Piece (ex: EB03-021, OP01-001, ST01-001)
-ID_PATTERN = re.compile(r'[A-Z]{2,4}\d{2}-\d{3}')
- 
+
+# Padrão do ID das cartas One Piece (ex: EB03-021, OP01-001, ST01-001, PRB02-001, P-041)
+ID_PATTERN = re.compile(CARD_ID_PATTERN)
+
+CROPPED_SUBFOLDER = "cropped"
+
 # Configuração do Tesseract — linha única, só chars do ID
 TESS_CONFIG = '--psm 6 -c tessedit_char_whitelist=OPSTEBR0123456789-'
 
@@ -102,7 +106,7 @@ def extrair_id_por_ocr(carta_cv):
     texto = pytesseract.image_to_string(thresh, config=TESS_CONFIG).strip()
     texto = _corrigir_ocr(texto)    
 
-    match = re.search(r'(OP|ST|EB|PRB)\d{2}-\d{3}', texto) or re.search(r'P-\d{3}', texto)
+    match = ID_PATTERN.search(texto)
     return match.group() if match else None
 
 
@@ -120,23 +124,34 @@ def _corrigir_ocr(texto):
 # ---------------------------------------------------------------------------
 # Ponto de entrada
 # ---------------------------------------------------------------------------
- 
+
+def _salvar_recorte(image_path, carta_cv):
+    """Salva a carta recortada ao lado da foto original, numa subpasta 'cropped'."""
+    original = Path(image_path)
+    cropped_dir = original.parent / CROPPED_SUBFOLDER
+    cropped_dir.mkdir(exist_ok=True)
+    cropped_path = cropped_dir / original.name
+    cv2.imwrite(str(cropped_path), carta_cv)
+    return str(cropped_path)
+
+
 def process_image(image_path):
     try:
         img = cv2.imread(image_path)
         if img is None:
-            return None, "Erro: não foi possível carregar a imagem"
-    
+            return None, "Erro: não foi possível carregar a imagem", None
+
         carta, extraction_method = extrair_carta(img)
-    
+        cropped_path = _salvar_recorte(image_path, carta)
+
         card_id = extrair_id_por_ocr(carta)
-        if not card_id:        
-            card_id = _extrair_id_via_llm(carta)    
-    
+        if not card_id:
+            card_id = _extrair_id_via_llm(carta)
+
         if card_id:
-            return card_id, f"ocr, method={extraction_method}"
-    
-        return None, f"ocr_failed, method={extraction_method}"
+            return card_id, f"ocr, method={extraction_method}", cropped_path
+
+        return None, f"ocr_failed, method={extraction_method}", cropped_path
     except Exception as e:
-        return None, f"Erro ao processar imagem: {image_path}, {str(e)}"
+        return None, f"Erro ao processar imagem: {image_path}, {str(e)}", None
  
