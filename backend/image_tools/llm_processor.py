@@ -3,7 +3,7 @@ import base64
 import cv2
 import re
 
-ID_PATTERN = re.compile(r'[A-Z]{2,4}\d{2}-\d{3}')
+ID_PATTERN = re.compile(r'[A-Z]{2,4}\d{2}-\d{3}|P-\d{3}')
 def _extrair_id_via_llm(carta_cv):
     """Fallback: usa LLM local via Ollama para ler o ID quando OCR falha."""
     
@@ -18,7 +18,7 @@ def _extrair_id_via_llm(carta_cv):
         model='glm-ocr',
         messages=[{
             'role': 'user',
-            'content': 'This is the bottom of a One Piece trading card. Read the card ID code (format: XX##-###, example: EB03-021). Reply with ONLY the ID code, nothing else. You cannot take more than 30 seconds to identify.This is character whitelist OPSTEB0123456789-',
+            'content': 'This is the bottom of a One Piece trading card. Read the card ID code. Formats: XX##-### (example: EB03-021, ST03-017, PRB02-012) or P-### (example: P-024). Reply with ONLY the ID code, nothing else. You cannot take more than 30 seconds to identify. This is character whitelist OPSTEBR0123456789-',
             'images': [img_base64]
         }]
     )

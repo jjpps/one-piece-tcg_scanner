@@ -10,7 +10,7 @@ ID_REGION = {'y1': 0.85, 'y2': 0.97, 'x1': 0.55, 'x2': 0.92}
 ID_PATTERN = re.compile(r'[A-Z]{2,4}\d{2}-\d{3}')
  
 # Configuração do Tesseract — linha única, só chars do ID
-TESS_CONFIG = '--psm 6 -c tessedit_char_whitelist=OPSTEB0123456789-'
+TESS_CONFIG = '--psm 6 -c tessedit_char_whitelist=OPSTEBR0123456789-'
 
 # Configura caminho do executável Tesseract para Windows
 if sys.platform.startswith('win'):
@@ -102,7 +102,7 @@ def extrair_id_por_ocr(carta_cv):
     texto = pytesseract.image_to_string(thresh, config=TESS_CONFIG).strip()
     texto = _corrigir_ocr(texto)    
 
-    match = re.search(r'(OP|ST|EB)\d{2}-\d{3}', texto)
+    match = re.search(r'(OP|ST|EB|PRB)\d{2}-\d{3}', texto) or re.search(r'P-\d{3}', texto)
     return match.group() if match else None
 
 
