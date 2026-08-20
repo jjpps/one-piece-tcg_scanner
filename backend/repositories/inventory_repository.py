@@ -156,7 +156,7 @@ def get_session_items(session_id, color=None, status='pending', search=None, pag
                    is_new_card, reviewed, changed, counted_quantity
             FROM inventory_session_items
             WHERE {where_clause}
-            ORDER BY code
+            ORDER BY system_quantity desc
             LIMIT ? OFFSET ?''',
         params + [page_size, offset]
     )
