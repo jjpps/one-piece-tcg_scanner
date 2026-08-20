@@ -133,11 +133,6 @@ def get_card_by_code(card_code: str):
 - Callers que passam por essa função sem precisar de nenhuma mudança: `backend/processor.py` (linhas 53, 56), `backend/routes/library_routes.py` (linha 77), `backend/services/upload_service.py` (linhas 45, 180).
 - Esse arquivo também tem uma `API_KEY` não usada (linha 4) e um header comentado (linha 9) — não relacionado a esta feature, não mexer.
 
-### Testes mínimos a acrescentar
-Não existe suíte de testes no backend hoje. Criar um `backend/test_card_code_detection.py` simples, baseado em `assert` (sem framework), cobrindo:
-- A regex de `ocr_processor.py` linha 105 contra os 4 exemplos: `OP01-001`, `ST03-017`, `P-024`, `PRB02-012`.
-- `_resolve_base_url` de `tcg_api_client.py` contra os mesmos 4 prefixos, conferindo a URL base esperada.
-
 ---
 
 ## O que o dev FRONTEND precisa saber
@@ -171,8 +166,13 @@ Atualizar esses textos para incluir um exemplo de ST/P/PRB é puramente cosméti
 - Confirmar que o card retornado da API bate com o esperado para cada endpoint (decks para ST, promos para P e PRB).
 - No frontend: colar um código de cada tipo novo manualmente em `inventory-audit` e `scan-errors`, e uma linha de decklist com cada tipo em `deck-building`, conferindo que aparecem corretos na tela e chegam certos no backend.
 
-### Passo 4 — Testes (backend)
-- `backend/test_card_code_detection.py` cobrindo a regex de detecção e o `_resolve_base_url`, conforme descrito na seção 4 acima.
+> Testes automatizados de backend ficam a cargo do processo já existente da equipe (fora deste repo) — não criamos suíte própria aqui.
+
+## Reconciliação com `main` (2026-08-20)
+
+O PR `Feature/comparation slide in` (#12), mesclado em `main` em paralelo a este trabalho, já implementava a detecção de código de forma centralizada em `backend/card_id_pattern.py` (`CARD_ID_PATTERN = r'(?:OP|ST|EB|PRB)\d{2}-\d{3}|P-\d{3}'`), usada em `ocr_processor.py`, `llm_processor.py` e `upload_service.py`. Ao fazer merge de `main` em `feature/othersSets`, os conflitos nesses 3 arquivos foram resolvidos adotando essa versão centralizada (mais DRY que a nossa regex duplicada). Ficou preservado desta branch:
+- O dispatch de endpoint por prefixo em `tcg_api_client.py` (`_resolve_base_url`) — `main` não tinha essa lógica.
+- O prompt/whitelist da `llm_processor.py` vindo de `main` é o que ficou (mais completo, com fallback `UNKNOWN` e whitelist `OPSTEBRP0123456789-`).
 
 ## Itens já resolvidos (não precisam de trabalho)
 
@@ -185,4 +185,3 @@ Atualizar esses textos para incluir um exemplo de ST/P/PRB é puramente cosméti
 - `backend/image_tools/llm_processor.py`
 - `backend/services/upload_service.py`
 - `backend/services/tcg_api_client.py`
-- `backend/test_card_code_detection.py` (novo)
