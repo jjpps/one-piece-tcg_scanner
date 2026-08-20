@@ -18,6 +18,17 @@ def get_reviews():
     for card in cards:
         filename = Path(card.get('local_imagem', '')).name
         card['local_image_url'] = url_for('review.serve_local_image', filename=filename, _external=True)
+
+        cropped_imagem = card.get('cropped_imagem')
+        if cropped_imagem:
+            cropped_filename = Path(cropped_imagem).name
+            card['cropped_image_url'] = url_for(
+                'review.serve_local_image', filename=f'cropped/{cropped_filename}', _external=True
+            )
+        else:
+            # Cartas processadas antes do recorte existir caem no fallback da foto bruta
+            card['cropped_image_url'] = card['local_image_url']
+
         enriched.append(card)
 
     return jsonify(enriched)
@@ -39,7 +50,8 @@ def approve():
         card_image=cardData.get("card_image", ""),
         card_name=cardData.get("card_name"),
         card_set_id=cardData.get("card_set_id", ""),
-        exists=cardData.get("exists", False)
+        exists=cardData.get("exists", False),
+        cropped_imagem=cardData.get("cropped_imagem", "")
     )
     if approve_card(card):
         return jsonify({},201)
@@ -57,7 +69,8 @@ def reprove():
         card_image=cardData.get("card_image", ""),
         card_name=cardData.get("card_name"),
         card_set_id=cardData.get("card_set_id", ""),
-        exists=cardData.get("exists", False)
+        exists=cardData.get("exists", False),
+        cropped_imagem=cardData.get("cropped_imagem", "")
     )
     if reprove_card(card):
         return jsonify({},201)

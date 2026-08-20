@@ -12,6 +12,17 @@ from services.tcg_api_client import get_card_by_code
 DATA_FILE = Path(__file__).parent.parent / "processed_cards.json"
 ERROR_IMAGES_FOLDER = 'images_with_errors'
 IMAGES_FOLDER = "images"
+CROPPED_SUBFOLDER = "cropped"  # mirrors image_tools.ocr_processor.CROPPED_SUBFOLDER
+
+
+def _remover_recorte(cropped_imagem):
+    """Apaga o recorte derivado da carta — não precisa sobreviver à decisão do usuário."""
+    if not cropped_imagem:
+        return
+    cropped_filename = Path(cropped_imagem).name
+    cropped_path = Path(__file__).parent.parent / IMAGES_FOLDER / CROPPED_SUBFOLDER / cropped_filename
+    if cropped_path.exists():
+        cropped_path.unlink()
 
 def load_local_cards() -> List[LocalCard]:
     """Read processed_cards.json and return a list of LocalCard instances."""
@@ -49,12 +60,13 @@ def approve_card(card: LocalCard) -> bool:
             file_path = Path(__file__).parent.parent / IMAGES_FOLDER / image_filename
             if file_path.exists():
                 file_path.unlink()
+            _remover_recorte(item.get("cropped_imagem"))
             data.remove(item)
             with DATA_FILE.open("w", encoding="utf-8") as f:
                 json.dump(data, f, ensure_ascii=False, indent=4)
     return True
 
-def reprove_card(card: LocalCard) -> bool:   
+def reprove_card(card: LocalCard) -> bool:
     print(f"Reproving card: {card.card_name} (ID: {card.card_set_id})")
     with DATA_FILE.open("r", encoding="utf-8") as f:
         data = json.load(f)
@@ -68,6 +80,7 @@ def reprove_card(card: LocalCard) -> bool:
                 unique_filename = f"{uuid.uuid4()}{file_ext}"
                 new_path = Path(__file__).parent.parent / ERROR_IMAGES_FOLDER / unique_filename
                 os.rename(str(file_path), str(new_path))
+            _remover_recorte(item.get("cropped_imagem"))
             data.remove(item)
             with DATA_FILE.open("w", encoding="utf-8") as f:
                 json.dump(data, f, ensure_ascii=False, indent=4)
