@@ -2,7 +2,7 @@ import json
 import re
 from typing import Any
 
-import ollama
+from llm_client import chat_text
 
 from card_id_pattern import CARD_ID_PATTERN
 from dtos.card_dto import Card
@@ -105,13 +105,7 @@ Input entries:
     print(f"Enviando lista para a LLM: {raw_list}", flush=True)
 
     try:
-        response = ollama.chat(
-            model='llama3.2',
-            messages=[{'role': 'user', 'content': prompt}],
-            options={'temperature': 0}
-        )
-        content = response.get('message', {}).get('content', '')
-        content = str(content).strip()
+        content = chat_text(prompt, ollama_model='llama3.2', temperature=0)
         print(f"LLM response: {content}", flush=True)
 
         parsed = _extract_json_from_text(content)
