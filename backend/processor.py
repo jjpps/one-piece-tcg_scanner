@@ -5,7 +5,7 @@ from pathlib import Path
 from dtos.local_card_dto import LocalCard
 from image_tools import ocr_processor
 from services.tcg_api_client import get_card_by_code
-from repositories.cards_repository import card_exists
+from repositories.cards_repository import card_exists, get_card_data_by_code
 import json
 ERROR_IMAGES_FOLDER = 'images_with_errors'
 
@@ -57,8 +57,8 @@ def start_processing(folder_path):
 
             if code:
                 if card_exists(code):
-                    card = get_card_by_code(code)
-                    localCards.append(LocalCard(file_path,card.card_image,card.card_name,code,True,cropped_path or ""))
+                    card_data = get_card_data_by_code(code)
+                    localCards.append(LocalCard(file_path,card_data['image_url'],card_data['card_name'],code,True,cropped_path or ""))
                 else:
                     card = get_card_by_code(code)
                     if card:
