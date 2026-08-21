@@ -14,7 +14,7 @@ ID_PATTERN = re.compile(CARD_ID_PATTERN)
 CROPPED_SUBFOLDER = "cropped"
 
 # Configuração do Tesseract — linha única, só chars do ID
-TESS_CONFIG = '--psm 6 -c tessedit_char_whitelist=OPSTEB0123456789-'
+TESS_CONFIG = '--psm 6 -c tessedit_char_whitelist=OPSTEBR0123456789-'
 
 # Configura caminho do executável Tesseract para Windows
 if sys.platform.startswith('win'):

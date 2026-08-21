@@ -82,13 +82,15 @@ Convert the provided raw entries into a single JSON object with this exact schem
 Rules:
 - Each input line is one card entry.
 - If a line starts with a number followed by whitespace or 'x', that number is the quantity.
-- If a line contains a card code like OP16-080, EB04-058, PRB02-001 or P-041, that code is the card code.
+- If a line contains a card code like OP16-080, EB04-058, ST03-017 or PRB02-001, that code is the card code.
+- A card code can also be just the letter P followed by a dash and 3 digits, like P-041, with no set number.
 - If a quantity is missing, use 1.
 - Examples:
   - '2 EB03-021' -> {{"deckName": "Deck", "cards": [{{"code": "EB03-021", "quantity": 2}}]}}
   - '1xOP16-080' -> {{"deckName": "Deck", "cards": [{{"code": "OP16-080", "quantity": 1}}]}}
   - '4xOP09-093' -> {{"deckName": "Deck", "cards": [{{"code": "OP09-093", "quantity": 4}}]}}
   - 'OP16-080' -> {{"deckName": "Deck", "cards": [{{"code": "OP16-080", "quantity": 1}}]}}
+  - '1 ST03-017' -> {{"deckName": "Deck", "cards": [{{"code": "ST03-017", "quantity": 1}}]}}
   - '3xPRB02-001' -> {{"deckName": "Deck", "cards": [{{"code": "PRB02-001", "quantity": 3}}]}}
   - '1 P-041' -> {{"deckName": "Deck", "cards": [{{"code": "P-041", "quantity": 1}}]}}
 - Ignore any text that is not a card entry.

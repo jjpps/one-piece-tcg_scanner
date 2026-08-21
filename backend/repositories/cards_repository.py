@@ -39,20 +39,6 @@ def card_exists(code):
     conn.close()
     return result is not None
 
-def get_card_by_code(code):
-    conn = sqlite3.connect(DB_PATH)
-    c = conn.cursor()
-
-    c.execute(
-        'SELECT code,image_url,card_name,quantity FROM cards WHERE code = ?',
-        (code,)
-    )
-
-    result = c.fetchone()
-    conn.close()
-    return result is not None
-
-
 def get_card_data_by_code(code):
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
