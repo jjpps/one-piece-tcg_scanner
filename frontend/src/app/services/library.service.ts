@@ -1,8 +1,25 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, interval, Observable, Subscription } from 'rxjs';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { Observable } from 'rxjs';
 import { LibraryCard } from '../interfaces/LibraryCard';
 import { API_BASE_URL } from './api-url';
+
+export const LIBRARY_PAGE_SIZE = 50;
+
+export interface LibraryPage {
+  items: LibraryCard[];
+  total: number;
+  page: number;
+  page_size: number;
+}
+
+export interface LibraryQuery {
+  color?: string;
+  search?: string;
+  searchBy?: string;
+  page?: number;
+  pageSize?: number;
+}
 
 @Injectable({
   providedIn: 'root',
@@ -10,8 +27,22 @@ import { API_BASE_URL } from './api-url';
 export class LibraryService {
   private apiUrl = `${API_BASE_URL}/library`;
   constructor(private http: HttpClient) {}
-  getLibrary(): Observable<LibraryCard[]> {
-    return this.http.get<LibraryCard[]>(this.apiUrl);
+
+  getLibrary(query: LibraryQuery = {}): Observable<LibraryPage> {
+    let params = new HttpParams()
+      .set('page', String(query.page ?? 1))
+      .set('page_size', String(query.pageSize ?? LIBRARY_PAGE_SIZE));
+
+    if (query.color) {
+      params = params.set('color', query.color);
+    }
+    if (query.search) {
+      params = params
+        .set('search', query.search)
+        .set('search_by', query.searchBy ?? 'code');
+    }
+
+    return this.http.get<LibraryPage>(this.apiUrl, { params });
   }
   getCardColors(): Observable<string[]> {
     return this.http.get<string[]>(`${this.apiUrl}/colors`);

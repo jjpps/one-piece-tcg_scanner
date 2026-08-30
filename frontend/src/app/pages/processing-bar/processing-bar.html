@@ -32,7 +32,7 @@
     </div>
 
     <div *ngIf="status.anyErrors" class="alert alert-danger mt-2">
-      Ocorreu erro durante o processamento
+      {{ status.errorCount }} carta(s) não puderam ser processadas neste lote.
     </div>
 
   </div>

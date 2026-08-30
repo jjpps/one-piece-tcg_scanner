@@ -28,7 +28,8 @@ processing_status = {
     "total": 0,
     "current": 0,
     "processing": False,
-    "anyErrors": False
+    "anyErrors": False,
+    "errorCount": 0,
 }
 
 status_lock = threading.Lock()
@@ -37,6 +38,12 @@ status_lock = threading.Lock()
 def get_status():
     with status_lock:
         return processing_status.copy()
+
+
+def _registrar_erro():
+    with status_lock:
+        processing_status["errorCount"] += 1
+        processing_status["anyErrors"] = True
 
 
 
@@ -53,12 +60,12 @@ def _processar_um_arquivo(file_path):
             return LocalCard(file_path, card.card_image, card.card_name, code, False, cropped_path or "")
         _descartar_recorte(cropped_path)
         _mover_para_erro(file_path)
+        _registrar_erro()
         return None
 
     _descartar_recorte(cropped_path)
     _mover_para_erro(file_path)
-    with status_lock:
-        processing_status["anyErrors"] = True
+    _registrar_erro()
     return None
 
 
@@ -76,13 +83,17 @@ def start_processing(folder_path):
             with status_lock:
                 processing_status["total"] = 0
                 processing_status["current"] = 0
-                processing_status["processing"] = False            
+                processing_status["processing"] = False
+                processing_status["anyErrors"] = False
+                processing_status["errorCount"] = 0
             return
 
         with status_lock:
             processing_status["total"] = len(files)
             processing_status["current"] = 0
             processing_status["processing"] = True
+            processing_status["anyErrors"] = False
+            processing_status["errorCount"] = 0
         localCards = []
         with ThreadPoolExecutor(max_workers=PROCESS_WORKERS) as executor:
             futures = [executor.submit(_processar_um_arquivo, fp) for fp in files]
