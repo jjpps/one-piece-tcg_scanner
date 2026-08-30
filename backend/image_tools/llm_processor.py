@@ -28,8 +28,13 @@ _PROMPT_GEMINI = (
 )
 
 
+# q95 (default do imencode) na foto original do celular gera payload de MBs por
+# chamada — upload e tokenização da imagem dominam a latência.
+_JPEG_QUALIDADE = 80
+
+
 def _tentar_gemini(imagem_cv):
-    _, buffer = cv2.imencode('.jpg', imagem_cv)
+    _, buffer = cv2.imencode('.jpg', imagem_cv, [cv2.IMWRITE_JPEG_QUALITY, _JPEG_QUALIDADE])
     resultado = extract_card_id_gemini(buffer.tobytes(), _PROMPT_GEMINI)
     if resultado.get('confidence') == 'none':
         return None
@@ -41,18 +46,19 @@ def _extrair_id_via_llm(carta_cv, original_img=None):
     """Fallback: usa LLM (Ollama local ou Gemini cloud, conforme LLM_PROVIDER) para ler o ID quando OCR falha."""
 
     if LLM_PROVIDER == 'gemini':
-        # Gemini localiza a carta sozinho — manda a foto inteira em vez do crop CV,
-        # que é frágil com fundo poluído/rotação.
-        foto = original_img if original_img is not None else carta_cv
-        card_id = _tentar_gemini(foto)
+        # Recorte inferior primeiro: é o caso comum e custa uma fração dos pixels da
+        # foto inteira. Se o crop CV saiu errado, o schema faz o modelo responder
+        # confidence='none' em vez de chutar, e caímos no fallback abaixo.
+        h, w = carta_cv.shape[:2]
+        card_id = _tentar_gemini(carta_cv[int(0.85*h):, :])
         if card_id:
             return card_id
 
-        # Confiança baixa/nenhuma na foto inteira — tenta de novo só com o recorte
-        # inferior (mesma heurística de crop usada no caminho Ollama abaixo).
-        h, w = carta_cv.shape[:2]
-        recorte = carta_cv[int(0.85*h):, :]
-        return _tentar_gemini(recorte)
+        # Fallback: foto original inteira, pra quando o crop CV errou a carta
+        # (fundo poluído, rotação). Caro, então só no que o recorte não resolveu.
+        if original_img is not None:
+            return _tentar_gemini(original_img)
+        return None
 
     # Ollama: mantém o crop já testado (região inferior, menos tokens)
     h, w = carta_cv.shape[:2]
