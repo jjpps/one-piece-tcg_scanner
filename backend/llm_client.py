@@ -84,11 +84,13 @@ def _e_transitorio(exc) -> bool:
 
 
 def _desligar_thinking_se_rejeitado(exc) -> bool:
-    """Modelo que não aceita thinking_config responde 400. Desliga a flag e avisa pra
-    tentar de novo — uma vez só, já que a flag não volta a ligar."""
+    """Modelo que não aceita thinking_config responde 400 — e a mensagem do Gemini é
+    genérica ("request contains an invalid argument"), sem citar o campo. Então
+    qualquer 400 com thinking ligado gasta UMA tentativa sem ele: se era isso, segue;
+    se não, o 400 volta e propaga normalmente."""
     global _thinking_ativo
     codigo = getattr(exc, 'code', None) or getattr(exc, 'status_code', None)
-    if not _thinking_ativo or codigo != 400 or 'think' not in str(exc).lower():
+    if not _thinking_ativo or codigo != 400:
         return False
     _thinking_ativo = False
     print('[llm_client] Modelo rejeitou thinking_config — seguindo sem ele.', flush=True)
