@@ -23,3 +23,9 @@
 .card-actions .badge {
   white-space: nowrap;
 }
+
+.repeat-badge {
+  flex: none;
+  min-height: 3rem;
+  white-space: nowrap;
+}

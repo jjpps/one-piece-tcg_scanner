@@ -9,8 +9,22 @@ ERROR_IMAGES_FOLDER = 'images_with_errors'
 library_bp = Blueprint('library', __name__)
 @library_bp.route('/library', methods=['GET'])
 def get_library():
-    cards = get_all_cards()
-    library = [
+    color = request.args.get('color')
+    search = request.args.get('search')
+    search_by = request.args.get('search_by', 'code')
+
+    try:
+        page = max(1, int(request.args.get('page', 1)))
+        page_size = min(200, max(1, int(request.args.get('page_size', 50))))
+    except ValueError:
+        return jsonify({'error': 'page e page_size precisam ser inteiros'}), 400
+
+    cards, total = get_all_cards(
+        color=color, search=search, search_by=search_by,
+        page=page, page_size=page_size,
+    )
+
+    items = [
         {
             "code": card[0],
             "image_url": card[1],
@@ -22,7 +36,12 @@ def get_library():
         for card in cards
     ]
 
-    return jsonify(library)
+    return jsonify({
+        "items": items,
+        "total": total,
+        "page": page,
+        "page_size": page_size,
+    })
 
 
 @library_bp.route('/library/colors', methods=['GET'])

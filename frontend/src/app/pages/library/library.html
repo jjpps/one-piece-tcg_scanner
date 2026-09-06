@@ -2,9 +2,7 @@
 <hr />
 
 <div class="container">
-  <ng-container *ngIf="libraryState$ | async as cards">
-    <!-- Loading -->
-    <div *ngIf="cards === null" class="text-center mt-4">Carregando biblioteca...</div>
+  <ng-container *ngIf="libraryState$ | async as state">
 
     <div class="row gx-1 gy-2 align-items-center">
       <div class="col">
@@ -47,14 +45,21 @@
     </div>
     <br />
     <!-- Grid -->
-    <div
-      *ngIf="cards !== null"
-      class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-5 g-4"
-    >
-      <p *ngIf="cards.length === 0" class="text-center w-100">Nenhuma carta na biblioteca.</p>
-      <div class="col" *ngFor="let card of cards">
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-5 g-4">
+      <p *ngIf="state.items.length === 0" class="text-center w-100">
+        {{ searchTerm || selectedColor
+            ? 'Nenhuma carta encontrada para este filtro.'
+            : 'Nenhuma carta na biblioteca.' }}
+      </p>
+      <div class="col" *ngFor="let card of state.items; trackBy: trackByCode">
         <div class="card h-100 shadow-sm">
-          <img [src]="card.image_url" class="card-img-top" [alt]="card.card_name" />
+          <img
+            [src]="card.image_url"
+            class="card-img-top"
+            [alt]="card.card_name"
+            loading="lazy"
+            decoding="async"
+          />
 
           <div class="card-body text-center">
             <h6 class="card-title">
@@ -82,14 +87,34 @@
               </div>
             </div>
             <span
-              *ngIf="card.quantity > 4"
-              class="badge text-bg-danger d-inline-flex justify-content-center align-items-center w-100 h-100"
+              class="badge text-bg-danger d-flex justify-content-center align-items-center repeat-badge"
+              [class.invisible]="card.quantity <= 4"
             >
               Repetidas
             </span>
           </div>
         </div>
       </div>
+    </div>
+
+    <div class="d-flex justify-content-center align-items-center gap-3 my-4">
+      <button
+        type="button"
+        class="btn btn-outline-secondary"
+        [disabled]="page <= 1"
+        (click)="prevPage()"
+      >
+        Anterior
+      </button>
+      <span>Página {{ page }} ({{ state.total }} carta(s) no total)</span>
+      <button
+        type="button"
+        class="btn btn-outline-secondary"
+        [disabled]="!hasNextPage"
+        (click)="nextPage()"
+      >
+        Próxima
+      </button>
     </div>
   </ng-container>
 </div>

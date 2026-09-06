@@ -73,15 +73,47 @@ def add_card_quantity(code):
     conn.commit()
     conn.close()
 
-def get_all_cards():
+def get_all_cards(color=None, search=None, search_by='code', page=None, page_size=50):
+    """Devolve (linhas, total). `total` e a contagem com os filtros aplicados,
+    ignorando a paginacao -- e o que a UI usa pra saber quantas paginas existem."""
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
 
-    c.execute('SELECT code,image_url,card_name,quantity,date(processed_at) as processed_at, card_color FROM cards order by processed_at desc')
+    conditions = []
+    params = []
+
+    if color:
+        conditions.append('LOWER(card_color) = LOWER(?)')
+        params.append(color)
+
+    if search:
+        # whitelist: nunca interpolar valor vindo do usuario direto no SQL
+        column = 'card_name' if search_by == 'name' else 'code'
+        conditions.append(f'{column} LIKE ?')
+        params.append(f'%{search}%')
+
+    where = f'WHERE {" AND ".join(conditions)}' if conditions else ''
+
+    c.execute(f'SELECT COUNT(*) FROM cards {where}', params)
+    total = c.fetchone()[0]
+
+    # code ASC e desempate obrigatorio: processed_at tem granularidade de dia,
+    # sem ele a mesma carta pode cair em duas paginas.
+    sql = (
+        'SELECT code, image_url, card_name, quantity, '
+        'date(processed_at) as processed_at, card_color '
+        f'FROM cards {where} '
+        'ORDER BY processed_at DESC, code ASC'
+    )
+    if page is not None:
+        sql += ' LIMIT ? OFFSET ?'
+        params = params + [page_size, (page - 1) * page_size]
+
+    c.execute(sql, params)
     cards = c.fetchall()
 
     conn.close()
-    return cards
+    return cards, total
 
 
 def get_distinct_card_colors():

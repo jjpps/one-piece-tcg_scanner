@@ -1,9 +1,11 @@
 import cv2
 import re
+import numpy as np
 import pytesseract
 from pathlib import Path
 from image_tools.llm_processor import _extrair_id_via_llm
 from card_id_pattern import CARD_ID_PATTERN
+from config import DEBUG_IMAGES
 import sys
 
 ID_REGION = {'y1': 0.85, 'y2': 0.97, 'x1': 0.55, 'x2': 0.92}
@@ -20,12 +22,19 @@ TESS_CONFIG = '--psm 6 -c tessedit_char_whitelist=OPSTEBR0123456789-'
 if sys.platform.startswith('win'):
     pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
 
+_CONTOUR_WORK_WIDTH = 1000
+
+
 def _contorno_carta(img):
-    gray  = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    h, w = img.shape[:2]
+    scale = _CONTOUR_WORK_WIDTH / w if w > _CONTOUR_WORK_WIDTH else 1.0
+    small = cv2.resize(img, None, fx=scale, fy=scale, interpolation=cv2.INTER_AREA) if scale != 1.0 else img
+
+    gray  = cv2.cvtColor(small, cv2.COLOR_BGR2GRAY)
     edges = cv2.Canny(cv2.GaussianBlur(gray, (5, 5), 0), 50, 150)
     contours, _ = cv2.findContours(edges, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
- 
-    img_area = img.shape[0] * img.shape[1]
+
+    img_area = small.shape[0] * small.shape[1]
     candidatos = []
     for c in contours:
         area = cv2.contourArea(c)
@@ -33,20 +42,42 @@ def _contorno_carta(img):
             continue
         approx = cv2.approxPolyDP(c, 0.02 * cv2.arcLength(c, True), True)
         if len(approx) == 4:
-            candidatos.append((c, area))
- 
-    return max(candidatos, key=lambda x: x[1])[0] if candidatos else None
+            candidatos.append((approx, area))
 
- 
-def _recortar_contorno(img, contour):
-    x, y, w, h = cv2.boundingRect(contour)
-    m = 5
-    x, y = max(0, x - m), max(0, y - m)
-    w = min(img.shape[1] - x, w + 2 * m)
-    h = min(img.shape[0] - y, h + 2 * m)
-    return img[y:y+h, x:x+w]
- 
- 
+    if not candidatos:
+        return None
+    melhor_approx = max(candidatos, key=lambda x: x[1])[0]
+    return (melhor_approx / scale).astype('int32') if scale != 1.0 else melhor_approx
+
+
+def _ordenar_pontos(pts):
+    """Ordena os 4 cantos como TL, TR, BR, BL pra warpPerspective."""
+    pts = pts.reshape(4, 2).astype('float32')
+    soma = pts.sum(axis=1)
+    diff = np.diff(pts, axis=1).flatten()
+    return np.array([
+        pts[np.argmin(soma)],   # top-left: menor x+y
+        pts[np.argmin(diff)],   # top-right: menor y-x
+        pts[np.argmax(soma)],   # bottom-right: maior x+y
+        pts[np.argmax(diff)],   # bottom-left: maior y-x
+    ], dtype='float32')
+
+
+def _recortar_contorno(img, approx):
+    """Corrige perspectiva usando os 4 cantos do contorno, em vez de bounding-rect
+    alinhado aos eixos — evita sobrar fundo nas quinas e desalinhar o texto do ID
+    quando a carta está rotacionada na foto."""
+    origem = _ordenar_pontos(approx)
+    tl, tr, br, bl = origem
+
+    largura = int(max(np.linalg.norm(tr - tl), np.linalg.norm(br - bl)))
+    altura = int(max(np.linalg.norm(bl - tl), np.linalg.norm(br - tr)))
+
+    destino = np.array([[0, 0], [largura - 1, 0], [largura - 1, altura - 1], [0, altura - 1]], dtype='float32')
+    matriz = cv2.getPerspectiveTransform(origem, destino)
+    return cv2.warpPerspective(img, matriz, (largura, altura))
+
+
 def extrair_carta(img):
     """Extrai a carta da foto. Tenta contorno; cai para recorte fixo."""
     try:
@@ -54,14 +85,16 @@ def extrair_carta(img):
         if contour is not None:
             card = _recortar_contorno(img, contour)
             if card.shape[0] > 50 and card.shape[1] > 50:
-                cv2.imwrite("debug_detected_card.jpg", card)
+                if DEBUG_IMAGES:
+                    cv2.imwrite("debug_detected_card.jpg", card)
                 return card, "contour"
     except Exception as e:
         print(f"Contorno falhou: {e}")
- 
+
     h, w = img.shape[:2]
     card = img[int(0.38*h):int(0.86*h), int(0.01*w):int(0.88*w)]
-    cv2.imwrite("debug_detected_card.jpg", card)
+    if DEBUG_IMAGES:
+        cv2.imwrite("debug_detected_card.jpg", card)
     return card, "percentage"
  
  
@@ -101,7 +134,8 @@ def extrair_id_por_ocr(carta_cv):
     # Inverte: texto claro em fundo escuro → texto escuro em fundo claro
     _, thresh = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
 
-    cv2.imwrite("debug_ocr_region.jpg", thresh)
+    if DEBUG_IMAGES:
+        cv2.imwrite("debug_ocr_region.jpg", thresh)
 
     texto = pytesseract.image_to_string(thresh, config=TESS_CONFIG).strip()
     texto = _corrigir_ocr(texto)    
@@ -146,7 +180,7 @@ def process_image(image_path):
 
         card_id = extrair_id_por_ocr(carta)
         if not card_id:
-            card_id = _extrair_id_via_llm(carta)
+            card_id = _extrair_id_via_llm(carta, original_img=img)
 
         if card_id:
             return card_id, f"ocr, method={extraction_method}", cropped_path
