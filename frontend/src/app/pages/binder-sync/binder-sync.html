@@ -1,0 +1,165 @@
+<br />
+<hr />
+
+<div class="container">
+  <h3 class="mb-3">Sincronização com o Binder</h3>
+
+  <div class="alert alert-danger" *ngIf="errorMessage()" role="alert">
+    {{ errorMessage() }}
+    <button type="button" class="btn-close float-end" (click)="clearError()"></button>
+    <ul class="mb-0 mt-2" *ngIf="csvErrors().length > 0">
+      <li *ngFor="let e of csvErrors()">{{ e }}</li>
+    </ul>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="view() === 'loading'" class="text-center mt-4">Carregando...</div>
+
+  <!-- Landing -->
+  <div *ngIf="view() === 'landing'">
+    <div class="card p-4 mb-3" *ngIf="session() as s; else noSession">
+      <p class="mb-2">Sincronização em andamento: {{ s.total - s.pending }}/{{ s.total }} divergências resolvidas.</p>
+      <div class="d-flex gap-2">
+        <button type="button" class="btn btn-success" (click)="continueSession()">Continuar</button>
+        <button type="button" class="btn btn-outline-danger" (click)="discardSession()">Descartar</button>
+      </div>
+    </div>
+    <ng-template #noSession>
+      <div class="card p-4 mb-3">
+        <p class="mb-2">Importe o CSV exportado pelo Binder para comparar com o nosso acervo.</p>
+        <div class="input-group">
+          <input class="form-control" type="file" accept=".csv,text/csv" (change)="onFileSelected($event)" />
+          <button type="button" class="btn btn-success" [disabled]="!selectedFile() || busy()" (click)="importCsv()">
+            Importar
+          </button>
+        </div>
+      </div>
+    </ng-template>
+  </div>
+
+  <!-- Review -->
+  <div *ngIf="view() === 'review' && session() as s">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+      <div>
+        <strong>{{ s.total }}</strong> divergência(s) —
+        {{ kindLabels.binder_only }}: {{ s.binder_only }} ·
+        {{ kindLabels.ours_only }}: {{ s.ours_only }} ·
+        {{ kindLabels.both }}: {{ s.both }}
+      </div>
+      <div class="d-flex gap-2">
+        <button type="button" class="btn btn-outline-danger" (click)="discardSession()">Descartar</button>
+        <button type="button" class="btn btn-primary" [disabled]="s.pending > 0 || busy()" (click)="commit()">
+          {{ s.pending > 0 ? 'Faltam ' + s.pending + ' pendente(s)' : 'Commitar' }}
+        </button>
+      </div>
+    </div>
+
+    <div class="row g-2 mb-2">
+      <div class="col-12 col-md-3">
+        <select class="form-select" [ngModel]="kindFilter()" (ngModelChange)="setKindFilter($event)">
+          <option value="">Todos os tipos</option>
+          <option *ngFor="let k of kinds" [value]="k">{{ kindLabels[k] }}</option>
+        </select>
+      </div>
+      <div class="col-12 col-md-3">
+        <select class="form-select" [ngModel]="colorFilter()" (ngModelChange)="setColorFilter($event)">
+          <option value="">Todas as cores</option>
+          <option *ngFor="let c of s.colors" [value]="c.card_color">
+            {{ colorLabel(c.card_color) }} ({{ c.pending }}/{{ c.total }} pendentes)
+          </option>
+        </select>
+      </div>
+      <div class="col-12 col-md-2">
+        <select class="form-select" [ngModel]="statusFilter()" (ngModelChange)="setStatusFilter($event)">
+          <option value="pending">Pendentes</option>
+          <option value="resolved">Resolvidas</option>
+          <option value="">Todas</option>
+        </select>
+      </div>
+      <div class="col-12 col-md-4">
+        <div class="input-group">
+          <input
+            class="form-control"
+            type="text"
+            placeholder="Buscar por código ou nome"
+            [ngModel]="searchTerm()"
+            (ngModelChange)="onSearchTermChange($event)"
+            (keydown.enter)="applyFilters()"
+          />
+          <button class="btn btn-outline-secondary" type="button" (click)="applyFilters()">Buscar</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
+      <span class="text-muted">Resolver pendentes do filtro atual (tipo e cor):</span>
+      <button *ngFor="let r of resolutions" type="button" class="btn btn-sm btn-outline-dark" (click)="resolveBulk(r)">
+        {{ resolutionLabels[r] }}
+      </button>
+    </div>
+
+    <p *ngIf="items().length === 0" class="text-center">Nenhuma divergência neste filtro.</p>
+
+    <div class="list-group mb-3">
+      <div class="list-group-item d-flex flex-wrap align-items-center gap-3" *ngFor="let item of items()">
+        <img *ngIf="item.card_image_url" [src]="item.card_image_url" [alt]="item.card_name" class="item-thumb" />
+        <div class="flex-grow-1">
+          <div>
+            <strong>{{ item.card_name || 'Carta não cadastrada' }}</strong> — {{ item.code }}
+            <span class="badge text-bg-light border ms-1">{{ kindLabels[item.kind] }}</span>
+          </div>
+          <div>Nosso: {{ item.our_quantity }} · Binder: {{ item.binder_quantity }}</div>
+        </div>
+        <div class="btn-group" role="group">
+          <button
+            *ngFor="let r of resolutions"
+            type="button"
+            class="btn btn-sm"
+            [class.btn-dark]="item.resolution === r"
+            [class.btn-outline-dark]="item.resolution !== r"
+            (click)="resolve(item, r)"
+          >
+            {{ resolutionLabels[r] }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="d-flex justify-content-between" *ngIf="itemsTotal() > 0">
+      <button type="button" class="btn btn-outline-secondary" [disabled]="page() <= 1" (click)="prevPage()">Anterior</button>
+      <span>Página {{ page() }} ({{ itemsTotal() }} no total)</span>
+      <button type="button" class="btn btn-outline-secondary" [disabled]="page() * pageSize >= itemsTotal()" (click)="nextPage()">
+        Próxima
+      </button>
+    </div>
+  </div>
+
+  <!-- Done -->
+  <div *ngIf="view() === 'done' && result() as r" class="card p-4">
+    <p>Sincronização commitada: {{ r.updated }} atualizada(s), {{ r.added }} nova(s) adicionada(s).</p>
+
+    <div class="alert alert-warning" *ngIf="r.failed.length > 0">
+      {{ r.failed.length }} carta(s) não encontradas na API e não aplicadas (voltarão na próxima sincronização):
+      {{ r.failed.join(', ') }}
+    </div>
+
+    <ng-container *ngIf="r.binder_list.length > 0; else nothingForBinder">
+      <h5>Lista para o Binder</h5>
+      <p class="text-muted">Copie agora: esta lista não fica guardada.</p>
+      <textarea class="form-control font-monospace mb-2" rows="10" readonly [value]="binderListText()"></textarea>
+      <div class="d-flex gap-2 mb-3">
+        <button type="button" class="btn btn-outline-dark" (click)="copyBinderList()">
+          {{ copied() ? 'Copiado!' : 'Copiar' }}
+        </button>
+        <button type="button" class="btn btn-outline-dark" (click)="downloadBinderList()">Baixar .txt</button>
+      </div>
+    </ng-container>
+    <ng-template #nothingForBinder>
+      <p class="text-muted">Nenhuma mudança para enviar ao Binder.</p>
+    </ng-template>
+
+    <div>
+      <button type="button" class="btn btn-primary" (click)="newSync()">Nova sincronização</button>
+    </div>
+  </div>
+</div>

@@ -7,6 +7,7 @@ import { CardsReview } from './pages/cards-review/cards-review';
 import { DeckBuilding } from './pages/deck-building/deck-building';
 import { DeckOutput } from './pages/deck-output/deck-output';
 import { InventoryAudit } from './pages/inventory-audit/inventory-audit';
+import { BinderSync } from './pages/binder-sync/binder-sync';
 export const routes: Routes = [
   { path: '', component: Home },
   { path: 'home', component: Home },
@@ -17,4 +18,5 @@ export const routes: Routes = [
   { path: 'deck-building', component: DeckBuilding },
   { path: 'deck-output', component: DeckOutput },
   { path: 'inventory-audit', component: InventoryAudit },
+  { path: 'binder-sync', component: BinderSync },
 ];

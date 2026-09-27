@@ -7,6 +7,7 @@ from services.inventory_service import (
     DuplicateItemError,
     CardAlreadyInLibraryError,
     CardNotFoundError,
+    SyncSessionOpenError,
 )
 
 inventory_bp = Blueprint('inventory', __name__)
@@ -18,6 +19,7 @@ ERROR_STATUS = {
     DuplicateItemError: 400,
     CardAlreadyInLibraryError: 409,
     CardNotFoundError: 404,
+    SyncSessionOpenError: 409,
 }
 
 

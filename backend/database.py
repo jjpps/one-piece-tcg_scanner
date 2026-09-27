@@ -106,6 +106,38 @@ def init_db():
         ON inventory_session_items(session_id, card_color)
     ''')
 
+    # Sincronização com o Binder: uma sessão aberta por vez, só com as Divergências.
+    c.execute('''
+        CREATE TABLE IF NOT EXISTS sync_sessions (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            status TEXT NOT NULL DEFAULT 'open',
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            completed_at DATETIME DEFAULT NULL
+        )
+    ''')
+
+    c.execute('''
+        CREATE UNIQUE INDEX IF NOT EXISTS idx_sync_sessions_single_open
+        ON sync_sessions(status)
+        WHERE status = 'open'
+    ''')
+
+    # resolution: NULL (pendente) | 'binder' | 'ours' | 'ignore'
+    c.execute('''
+        CREATE TABLE IF NOT EXISTS sync_session_items (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            session_id INTEGER NOT NULL REFERENCES sync_sessions(id),
+            code TEXT NOT NULL,
+            card_name TEXT,
+            card_image_url TEXT,
+            card_color TEXT,
+            our_quantity INTEGER NOT NULL DEFAULT 0,
+            binder_quantity INTEGER NOT NULL DEFAULT 0,
+            resolution TEXT DEFAULT NULL,
+            UNIQUE(session_id, code)
+        )
+    ''')
+
     conn.commit()
     conn.close()
 

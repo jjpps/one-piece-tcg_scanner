@@ -1,5 +1,6 @@
 from repositories import inventory_repository as repo
 from repositories.cards_repository import card_exists
+from repositories import sync_repository
 from services.tcg_api_client import get_card_by_code
 
 
@@ -27,6 +28,10 @@ class CardNotFoundError(Exception):
     pass
 
 
+class SyncSessionOpenError(Exception):
+    pass
+
+
 def _require_open_session(session_id):
     session = repo.get_session_by_id(session_id)
     if not session or session['status'] != 'open':
@@ -35,6 +40,8 @@ def _require_open_session(session_id):
 
 
 def start_new_session():
+    if sync_repository.get_open_session():
+        raise SyncSessionOpenError('Existe uma sincronização com o Binder aberta. Commite ou descarte antes de auditar.')
     session_id, total = repo.create_session_with_snapshot()
     return {'session_id': session_id, 'total_items': total}
 
