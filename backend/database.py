@@ -106,6 +106,14 @@ def init_db():
         ON inventory_session_items(session_id, card_color)
     ''')
 
+    c.execute('''
+        CREATE TABLE IF NOT EXISTS shopping_list_items (
+            code TEXT PRIMARY KEY,
+            card_name TEXT,
+            remaining INTEGER NOT NULL CHECK (remaining > 0)
+        )
+    ''')
+
     conn.commit()
     conn.close()
 
