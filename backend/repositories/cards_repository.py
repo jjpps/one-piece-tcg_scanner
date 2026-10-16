@@ -1,5 +1,6 @@
 import sqlite3
 from dtos.card_dto import Card
+from repositories.shopping_list_repository import abater
 
 DB_PATH = 'db.sqlite'
 
@@ -22,6 +23,7 @@ def save_to_db(card: Card, quantity=1):
          card.counter_amount, card.attribute, card.date_scraped, 
          card.card_image_id, card.card_image)
     )
+    abater(c, card.card_set_id, quantity)
 
     conn.commit()
     conn.close()
@@ -69,6 +71,7 @@ def add_card_quantity(code):
         'UPDATE cards SET quantity = quantity + 1 WHERE code = ?',
         (code,)
     )
+    abater(c, code, 1)
 
     conn.commit()
     conn.close()
