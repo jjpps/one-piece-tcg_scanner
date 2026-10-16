@@ -12,20 +12,20 @@
     ></textarea>
   </div>
   <div class="d-flex flex-wrap gap-2 mb-3">
-    <button class="btn btn-outline-primary" (click)="onImport()" [disabled]="!listText.trim() || loading">
-      {{ loading ? 'Importando...' : 'Importar' }}
+    <button class="btn btn-outline-primary" (click)="onImport()" [disabled]="!listText.trim() || loading()">
+      {{ loading() ? 'Importando...' : 'Importar' }}
     </button>
-    <button class="btn btn-outline-dark" (click)="copyList()" [disabled]="!items.length">Copiar lista</button>
-    <button class="btn btn-outline-danger" (click)="clear()" [disabled]="!items.length">Limpar lista de compras</button>
+    <button class="btn btn-outline-dark" (click)="copyList()" [disabled]="!items().length">Copiar lista</button>
+    <button class="btn btn-outline-danger" (click)="clear()" [disabled]="!items().length">Limpar lista de compras</button>
   </div>
 
-  @if (error) {
-    <div class="alert alert-danger">{{ error }}</div>
+  @if (error()) {
+    <div class="alert alert-danger">{{ error() }}</div>
   }
 
-  @if (invalid.length) {
+  @if (invalid().length) {
     <h5>Linhas não reconhecidas</h5>
-    @for (line of invalid; track line) {
+    @for (line of invalid(); track line) {
       <div class="row g-2 align-items-center mb-2">
         <div class="col-12 col-md-4 text-truncate">{{ line.raw }}</div>
         <div class="col-6 col-md-3">
@@ -44,13 +44,13 @@
     }
   }
 
-  @if (items.length) {
+  @if (items().length) {
     <table class="table">
       <thead>
         <tr><th>Código</th><th>Nome</th><th>Faltante</th></tr>
       </thead>
       <tbody>
-        @for (item of items; track item.code) {
+        @for (item of items(); track item.code) {
           <tr><td>{{ item.code }}</td><td>{{ item.card_name }}</td><td>{{ item.remaining }}</td></tr>
         }
       </tbody>
