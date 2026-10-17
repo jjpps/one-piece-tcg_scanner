@@ -1,11 +1,9 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { catchError, of } from 'rxjs';
 import { Collection } from '../../interfaces/Collection';
 import { CollectionService } from '../../services/collection.service';
-
-type Sort = 'newest' | 'highest' | 'lowest';
 
 const TYPE_ORDER = ['OP', 'EB', 'ST'];
 const RADIUS = 52;
@@ -32,23 +30,10 @@ export class CollectionTracker {
   readonly radius = RADIUS;
   readonly percent = percent;
 
-  sort = signal<Sort>('newest');
   private collections = toSignal(
     inject(CollectionService).list().pipe(catchError(() => of(null))),
     { initialValue: [] as Collection[] | null },
   );
   failed = computed(() => this.collections() === null);
-  sorted = computed(() => {
-    const list = [...(this.collections() ?? [])];
-    const by = {
-      newest: byNewest,
-      highest: (a: Collection, b: Collection) => percent(b) - percent(a) || byNewest(a, b),
-      lowest: (a: Collection, b: Collection) => percent(a) - percent(b) || byNewest(a, b),
-    }[this.sort()];
-    return list.sort(by);
-  });
-
-  onSort(value: string): void {
-    this.sort.set(value as Sort);
-  }
+  sorted = computed(() => [...(this.collections() ?? [])].sort(byNewest));
 }

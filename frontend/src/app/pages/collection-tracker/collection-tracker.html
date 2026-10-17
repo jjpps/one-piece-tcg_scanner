@@ -1,12 +1,5 @@
 <main class="container py-4">
-  <div class="d-flex align-items-center gap-3 mb-4">
-    <h2 class="m-0">Coleções</h2>
-    <select class="form-select w-auto" [value]="sort()" (change)="onSort($any($event.target).value)" aria-label="Ordenar">
-      <option value="newest">Mais nova → mais antiga</option>
-      <option value="highest">Maior %</option>
-      <option value="lowest">Menor %</option>
-    </select>
-  </div>
+  <h2 class="mb-4">Coleções</h2>
 
   @if (failed()) {
     <div class="alert alert-danger">Falha ao carregar as coleções.</div>
