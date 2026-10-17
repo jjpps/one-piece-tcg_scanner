@@ -1,6 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
+import { of } from 'rxjs';
 import { ScanErrors } from './scan-errors';
+import { LibraryService } from '../../services/library.service';
 
 describe('ScanErrors', () => {
   let component: ScanErrors;
@@ -8,7 +10,16 @@ describe('ScanErrors', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ScanErrors]
+      imports: [ScanErrors],
+      providers: [
+        {
+          provide: LibraryService,
+          useValue: {
+            getScanErrors: () =>
+              of([{ id: 'card-1', image_url: 'https://example.com/card.jpg', card_name: 'Card', code: '' }]),
+          },
+        },
+      ],
     })
     .compileComponents();
 
@@ -79,7 +90,9 @@ describe('ScanErrors', () => {
   });
 
   it('should render zoom preview when active', () => {
+    fixture.detectChanges();
     component.zoomActive = true;
+    component.activeZoomCardId = 'card-1';
     component.zoomImageSrc = 'https://example.com/card.jpg';
     component.zoomStyle = {
       'background-image': 'url(https://example.com/card.jpg)',
