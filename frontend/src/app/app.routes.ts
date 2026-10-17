@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { CollectionTracker } from './pages/collection-tracker/collection-tracker';
 import { ScanCards } from './pages/scan-cards/scan-cards';
 import { Library } from './pages/library/library';
 import { ScanErrors } from './pages/scan-errors/scan-errors';
@@ -8,7 +9,7 @@ import { DeckOutput } from './pages/deck-output/deck-output';
 import { InventoryAudit } from './pages/inventory-audit/inventory-audit';
 import { ShoppingList } from './pages/shopping-list/shopping-list';
 export const routes: Routes = [
-  { path: '', pathMatch: 'full', children: [] },
+  { path: '', pathMatch: 'full', component: CollectionTracker },
   { path: 'home', redirectTo: '', pathMatch: 'full' },
   { path: 'scan-cards', component: ScanCards },
   { path: 'library', component: Library },

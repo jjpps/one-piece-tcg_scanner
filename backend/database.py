@@ -114,6 +114,13 @@ def init_db():
         )
     ''')
 
+    c.execute('''
+        CREATE TABLE IF NOT EXISTS collection_totals (
+            prefix TEXT PRIMARY KEY,
+            total INTEGER NOT NULL
+        )
+    ''')
+
     conn.commit()
     conn.close()
 
