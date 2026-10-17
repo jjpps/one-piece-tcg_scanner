@@ -1,13 +1,12 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { firstValueFrom } from 'rxjs';
-import { DeckMenu } from '../../components/deck-menu/deck-menu';
 import { InvalidLine, ShoppingListItem } from '../../interfaces/ShoppingListItem';
 import { ShoppingListService } from '../../services/shopping-list.service';
 
 @Component({
   selector: 'app-shopping-list',
-  imports: [FormsModule, DeckMenu],
+  imports: [FormsModule],
   templateUrl: './shopping-list.html',
 })
 export class ShoppingList implements OnInit {

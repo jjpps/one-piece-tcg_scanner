@@ -1,0 +1,13 @@
+.tracker-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 1.5rem;
+}
+.medal { text-align: center; color: inherit; }
+.medal svg { width: 100%; max-width: 130px; }
+.medal .bg { fill: #1a1d24; stroke: #3a3f4b; stroke-width: 8; }
+.medal .ring { fill: none; stroke: #2fa4ff; stroke-width: 8; stroke-linecap: round; }
+.medal .code { fill: #fff; font-size: 22px; font-weight: 600; }
+.medal.complete .ring, .medal.complete .bg { stroke: #f0b429; }
+.medal.complete svg { transform: scale(1.08); filter: drop-shadow(0 0 6px #f0b429); }
+.pct { font-weight: 600; margin-top: .25rem; }
