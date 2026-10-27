@@ -1,0 +1,16 @@
+.mega-panel {
+  z-index: 1000;
+  min-width: 220px;
+}
+@media (min-width: 992px) {
+  .mega-item { position: static; }
+  .mega-panel {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 100%;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    padding: 1rem;
+  }
+}

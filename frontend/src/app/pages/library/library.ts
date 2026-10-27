@@ -22,7 +22,9 @@ export class Library {
   selectedColor = '';
   page = 1;
   total = 0;
-  readonly pageSize = LIBRARY_PAGE_SIZE;
+  get pageSize(): number {
+    return LIBRARY_PAGE_SIZE;
+  }
 
   private refresh$ = new Subject<void>();
   private searchBy$ = new BehaviorSubject<string>(this.searchBy);

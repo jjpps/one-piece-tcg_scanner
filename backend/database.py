@@ -138,6 +138,21 @@ def init_db():
         )
     ''')
 
+    c.execute('''
+        CREATE TABLE IF NOT EXISTS shopping_list_items (
+            code TEXT PRIMARY KEY,
+            card_name TEXT,
+            remaining INTEGER NOT NULL CHECK (remaining > 0)
+        )
+    ''')
+
+    c.execute('''
+        CREATE TABLE IF NOT EXISTS collection_totals (
+            prefix TEXT PRIMARY KEY,
+            total INTEGER NOT NULL
+        )
+    ''')
+
     conn.commit()
     conn.close()
 

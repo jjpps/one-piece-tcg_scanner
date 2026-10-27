@@ -35,3 +35,12 @@ def get_card_by_code(card_code: str):
     except requests.RequestException as e:
         print(f"Erro ao buscar carta {card_code}: {e}")
         return None
+
+def get_catalog_codes() -> list[str]:
+    """Codigos de todas as cartas dos sets e starter decks (endpoints em massa; levanta em falha)."""
+    codes = []
+    for endpoint in ("allSetCards", "allSTCards"):
+        response = session.get(f"{API_ROOT}/{endpoint}/", timeout=60)
+        response.raise_for_status()
+        codes.extend(c["card_set_id"] for c in response.json())
+    return codes

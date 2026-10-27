@@ -1,0 +1,24 @@
+<main class="container py-4">
+  <h2 class="mb-4">Coleções</h2>
+
+  @if (failed()) {
+    <div class="alert alert-danger">Falha ao carregar as coleções.</div>
+  }
+
+  <div class="tracker-grid">
+    @for (c of sorted(); track c.prefix) {
+      <a routerLink="/library" class="medal text-decoration-none" [class.complete]="c.total && c.owned >= c.total"
+         [title]="c.total ? c.owned + ' / ' + c.total : 'Total indisponível'">
+        <svg viewBox="0 0 120 120" role="img" [attr.aria-label]="c.prefix + ' ' + (c.total ? percent(c) + '%' : 'sem total')">
+          <circle class="bg" cx="60" cy="60" [attr.r]="radius" />
+          <circle class="ring" cx="60" cy="60" [attr.r]="radius"
+                  [attr.stroke-dasharray]="circumference"
+                  [attr.stroke-dashoffset]="circumference * (1 - percent(c) / 100)"
+                  transform="rotate(-90 60 60)" />
+          <text x="60" y="66" text-anchor="middle" class="code">{{ c.prefix }}</text>
+        </svg>
+        <div class="pct">{{ c.total ? percent(c) + '%' : '—' }}</div>
+      </a>
+    }
+  </div>
+</main>

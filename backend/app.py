@@ -2,6 +2,7 @@ from flask import Flask, jsonify
 from flask_cors import CORS
 from database import init_db
 from routes import register_routes
+from services import collection_service
 
 
 def create_app():
@@ -9,6 +10,7 @@ def create_app():
     CORS(app)
     # Inicializa banco
     init_db()
+    collection_service.sync_missing()
     # Registra rotas
     register_routes(app)
 

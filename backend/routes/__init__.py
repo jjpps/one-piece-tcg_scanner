@@ -4,6 +4,8 @@ from .library_routes import library_bp
 from .review_routes import review_bp
 from .inventory_routes import inventory_bp
 from .sync_routes import sync_bp
+from .shopping_list_routes import shopping_list_bp
+from .collection_routes import collection_bp
 
 def register_routes(app):
     app.register_blueprint(upload_bp, url_prefix='/api')
@@ -12,4 +14,5 @@ def register_routes(app):
     app.register_blueprint(review_bp, url_prefix='/api')
     app.register_blueprint(inventory_bp, url_prefix='/api')
     app.register_blueprint(sync_bp, url_prefix='/api')
-
+    app.register_blueprint(shopping_list_bp, url_prefix='/api')
+    app.register_blueprint(collection_bp, url_prefix='/api')
